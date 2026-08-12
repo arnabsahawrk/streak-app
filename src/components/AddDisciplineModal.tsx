@@ -71,7 +71,9 @@ export default function AddDisciplineModal({
           className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-4 resize-none focus:outline-none focus:border-flame"
         />
 
-        <label className="block text-xs text-paper-dim mb-2">Color</label>
+        <label className="block text-xs text-paper-dim mb-2">
+          Color (shown as a small dot next to the name — separate from tier color)
+        </label>
         <div className="flex gap-2 mb-6">
           {SWATCHES.map((c) => (
             <button

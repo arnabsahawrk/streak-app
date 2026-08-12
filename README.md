@@ -1,11 +1,13 @@
-# Commitment
+# Streak
 
 A personal, install-as-an-app streak tracker. Add a commitment, watch the
 day count climb, reset when you need to — nothing else.
 
 ## What's here
 
-- **Next.js 16** (App Router, TypeScript, Tailwind v4)
+- **Next.js 16** (App Router, TypeScript, Tailwind **v3.4** — deliberately not v4,
+  which needs Safari 16.4+; v3 keeps this working on older phones like an
+  iPhone 7)
 - **Neon Postgres** for storage, via `postgres` — two tables, no ORM
 - **Serwist** for the service worker / offline shell / installability
 - **Motion** for the streak count-up, **canvas-confetti** for milestone tier-ups
@@ -55,5 +57,6 @@ computed on every read. Nothing needs a cron job to "tick."
 - The tier ladder lives in `src/lib/tiers.ts` — names, colors, and day
   thresholds are all just data, safe to edit freely.
 - The Notion link in the header is hardcoded in `src/app/page.tsx`.
-- `reset_log` isn't surfaced in the UI yet — it's there so a stats/heatmap
-  view has history to draw on later.
+- `reset_log` now powers the **History** button on each card (a modal listing
+  past resets with the date and streak length). Notes you leave when
+  resetting show up there too.
