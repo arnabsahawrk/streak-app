@@ -1,7 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hashPasscode, SESSION_COOKIE } from "@/lib/auth";
 
-const PUBLIC_PATHS = ["/login", "/api/login", "/manifest.webmanifest", "/sw.js"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/api/login",
+  "/manifest.webmanifest",
+  "/sw.js",
+  "/api/badge",
+];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;

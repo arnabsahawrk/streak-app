@@ -1,17 +1,20 @@
 -- Run this once against your Neon database (SQL Editor in the Neon
 -- console, or `psql "$DATABASE_URL" -f migration.sql`).
+-- Fresh install only. If you already ran the original migration.sql,
+-- use migration-v2.sql instead — this one will just no-op harmlessly
+-- on tables that already exist.
 
 create extension if not exists "pgcrypto";
 
 create table if not exists disciplines (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  color text not null default '#EF4444',
   why_note text,
   start_date timestamptz not null default now(),
   max_streak integer not null default 0,
   archived boolean not null default false,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  public_token text not null default gen_random_uuid()::text
 );
 
 create table if not exists reset_log (

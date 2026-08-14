@@ -5,9 +5,11 @@ day count climb, reset when you need to — nothing else.
 
 ## What's here
 
-- **Next.js 16** (App Router, TypeScript, Tailwind **v3.4** — deliberately not v4,
-  which needs Safari 16.4+; v3 keeps this working on older phones like an
-  iPhone 7)
+- **Next.js 16** (App Router, TypeScript, Tailwind **v4**). Note: v4 requires
+  Safari 16.4+ — it won't render correctly on older devices (e.g. an
+  iPhone 7, capped at iOS 15). Was downgraded to v3.4 for that reason once,
+  then reverted back to v4 on request — see `postcss.config.mjs` /
+  `src/app/globals.css` if you need to redo that swap.
 - **Neon Postgres** for storage, via `postgres` — two tables, no ORM
 - **Serwist** for the service worker / offline shell / installability
 - **Motion** for the streak count-up, **canvas-confetti** for milestone tier-ups
@@ -54,9 +56,22 @@ computed on every read. Nothing needs a cron job to "tick."
 
 ## Notes
 
-- The tier ladder lives in `src/lib/tiers.ts` — names, colors, and day
-  thresholds are all just data, safe to edit freely.
+- The tier ladder lives in `src/lib/tiers.ts` — names, motivating lines,
+  colors, and day thresholds are all just data, safe to edit freely.
 - The Notion link in the header is hardcoded in `src/app/page.tsx`.
-- `reset_log` now powers the **History** button on each card (a modal listing
-  past resets with the date and streak length). Notes you leave when
-  resetting show up there too.
+- `reset_log` powers the **History** button on each card (a modal listing
+  past resets with the date and streak length).
+- There's no per-discipline color picker anymore — cards are colored purely
+  by tier. If you're updating an existing database rather than starting
+  fresh, run `migration-v2.sql` once (drops the old `color` column, adds
+  `public_token`).
+- **Notion embedding.** Each card has a **Notion** button showing two links:
+  an image URL (`/api/badge/[id]?token=...`) that redraws itself from the
+  live database every time it's fetched — paste it as an image block in
+  Notion — and a reset link that opens a confirm page first, then resets on
+  an explicit button press. It's deliberately not a one-click GET reset:
+  link-preview bots (Notion's own included) tend to auto-fetch pasted URLs,
+  which would otherwise trigger a reset just from pasting the link. Both
+  links are authenticated by a random per-discipline token, not your
+  passcode — anyone with the link can view or reset that one discipline, so
+  don't post them anywhere public.

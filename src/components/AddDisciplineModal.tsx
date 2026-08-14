@@ -2,17 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 
-const SWATCHES = [
-  "#EF4444",
-  "#F97316",
-  "#F59E0B",
-  "#84CC16",
-  "#22C55E",
-  "#14B8A6",
-  "#3B82F6",
-  "#A78BFA",
-];
-
 export default function AddDisciplineModal({
   onClose,
   onCreated,
@@ -21,7 +10,6 @@ export default function AddDisciplineModal({
   onCreated: () => void;
 }) {
   const [name, setName] = useState("");
-  const [color, setColor] = useState(SWATCHES[0]);
   const [why, setWhy] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -34,7 +22,6 @@ export default function AddDisciplineModal({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: name.trim(),
-        color,
         why_note: why.trim() || undefined,
       }),
     });
@@ -68,28 +55,8 @@ export default function AddDisciplineModal({
           value={why}
           onChange={(e) => setWhy(e.target.value)}
           rows={2}
-          className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-4 resize-none focus:outline-none focus:border-flame"
+          className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-6 resize-none focus:outline-none focus:border-flame"
         />
-
-        <label className="block text-xs text-paper-dim mb-2">
-          Color (shown as a small dot next to the name — separate from tier color)
-        </label>
-        <div className="flex gap-2 mb-6">
-          {SWATCHES.map((c) => (
-            <button
-              type="button"
-              key={c}
-              onClick={() => setColor(c)}
-              aria-label={c}
-              className="h-7 w-7 rounded-full"
-              style={{
-                backgroundColor: c,
-                outline: color === c ? "2px solid #EFE9DE" : "none",
-                outlineOffset: 2,
-              }}
-            />
-          ))}
-        </div>
 
         <div className="flex gap-2">
           <button

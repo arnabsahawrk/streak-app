@@ -16,15 +16,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
 
-  const color = typeof body?.color === "string" ? body.color : "#EF4444";
   const whyNote =
     typeof body?.why_note === "string" && body.why_note.trim()
       ? body.why_note.trim()
       : null;
 
   const [row] = await sql`
-    insert into disciplines (name, color, why_note)
-    values (${name}, ${color}, ${whyNote})
+    insert into disciplines (name, why_note)
+    values (${name}, ${whyNote})
     returning *
   `;
   return NextResponse.json(row, { status: 201 });

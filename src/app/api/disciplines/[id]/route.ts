@@ -10,7 +10,6 @@ export async function PATCH(
 
   const fields: Record<string, unknown> = {};
   if (typeof body.name === "string" && body.name.trim()) fields.name = body.name.trim();
-  if (typeof body.color === "string") fields.color = body.color;
   if (typeof body.why_note === "string") fields.why_note = body.why_note.trim() || null;
   if (typeof body.archived === "boolean") fields.archived = body.archived;
 

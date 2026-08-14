@@ -30,16 +30,14 @@ export default function DashboardPage() {
       )
     : [];
 
-  const totalDays = sorted.reduce((sum, d) => sum + currentStreakDays(d.start_date), 0);
-
   return (
     <main className="max-w-2xl mx-auto px-5 pb-32 pt-8 sm:pt-14">
-      <header className="flex items-start justify-between mb-2">
+      <header className="flex items-start justify-between mb-10">
         <div>
           <p className="font-mono text-xs tracking-[0.2em] text-paper-dim uppercase">
             Streak
           </p>
-          <h1 className="text-2xl font-semibold mt-1">Keep the streak alive</h1>
+          <h1 className="text-2xl font-semibold mt-1">Keep the commitment alive</h1>
         </div>
         <a
           href={NOTION_URL}
@@ -50,14 +48,6 @@ export default function DashboardPage() {
           Read commitment ↗
         </a>
       </header>
-
-      {sorted.length > 0 && (
-        <p className="text-paper-dim text-xs mb-8">
-          {sorted.length} {sorted.length === 1 ? "commitment" : "commitments"} · {totalDays}{" "}
-          combined {totalDays === 1 ? "day" : "days"}
-        </p>
-      )}
-      {sorted.length === 0 && <div className="mb-10" />}
 
       {disciplines === null ? (
         <p className="text-paper-dim text-sm">Loading…</p>
