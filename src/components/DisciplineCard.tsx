@@ -9,8 +9,9 @@ import { getTier, nextTier, TIERS } from "@/lib/tiers";
 import { formatDate } from "@/lib/format";
 import StreakCounter from "./StreakCounter";
 import ConfirmDialog from "./ConfirmDialog";
+import ArchiveConfirmDialog from "./ArchiveConfirmDialog";
 import ResetHistoryModal from "./ResetHistoryModal";
-import NotionCardModal from "./NotionCardModal";
+import ShareCardModal from "./ShareCardModal";
 
 export default function DisciplineCard({
   discipline,
@@ -20,9 +21,11 @@ export default function DisciplineCard({
   onChange: () => void;
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [notionOpen, setNotionOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [archiving, setArchiving] = useState(false);
   const [pulse, setPulse] = useState(false);
 
   const days = currentStreakDays(discipline.start_date);
@@ -62,12 +65,10 @@ export default function DisciplineCard({
   }
 
   async function handleArchive() {
-    if (!confirm(`Archive "${discipline.name}"? You can't undo this from the app.`)) return;
-    await fetch(`/api/disciplines/${discipline.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ archived: true }),
-    });
+    setArchiving(true);
+    await fetch(`/api/disciplines/${discipline.id}/archive`, { method: "POST" });
+    setArchiving(false);
+    setArchiveOpen(false);
     onChange();
   }
 
@@ -80,10 +81,8 @@ export default function DisciplineCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-medium truncate">{discipline.name}</p>
-          {discipline.why_note && (
-            <p className="text-paper-dim text-xs mt-0.5 truncate">{discipline.why_note}</p>
-          )}
+          <p className="font-medium">{discipline.name}</p>
+          <p className="text-paper-dim text-xs mt-0.5">{discipline.why_note}</p>
           <p className="text-paper-dim text-[11px] mt-1">
             started {formatDate(discipline.start_date)}
           </p>
@@ -104,21 +103,23 @@ export default function DisciplineCard({
             </motion.span>
           </AnimatePresence>
           <div className="flex gap-2.5 text-[11px] text-paper-dim">
-            <button onClick={() => setHistoryOpen(true)} className="hover:text-paper transition-colors">
-              History
+            {discipline.reset_count > 0 && (
+              <button onClick={() => setHistoryOpen(true)} className="hover:text-paper transition-colors">
+                History
+              </button>
+            )}
+            <button onClick={() => setShareOpen(true)} className="hover:text-paper transition-colors">
+              Share
             </button>
-            <button onClick={() => setNotionOpen(true)} className="hover:text-paper transition-colors">
-              Notion
-            </button>
-            <button onClick={handleArchive} className="hover:text-paper transition-colors">
+            <button onClick={() => setArchiveOpen(true)} className="hover:text-paper transition-colors">
               Archive
             </button>
           </div>
         </div>
       </div>
 
-      <div className="flex items-end justify-between mt-4">
-        <div>
+      <div className="flex items-end justify-between mt-4 gap-3">
+        <div className="min-w-0">
           <StreakCounter value={days} color={tier.color} />
           <AnimatePresence mode="wait">
             <motion.p
@@ -127,21 +128,25 @@ export default function DisciplineCard({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.25 }}
-              className="text-paper-dim text-xs italic mt-1"
+              className="text-paper text-sm font-bold mt-1"
             >
-              &ldquo;{tier.line}&rdquo;
+              {tier.line}
             </motion.p>
           </AnimatePresence>
           <p className="text-paper-dim text-xs mt-1">
-            Max streak: {bestSoFar} {bestSoFar === 1 ? "day" : "days"}
-            {upNext
-              ? ` · ${upNext.min - days} ${upNext.min - days === 1 ? "day" : "days"} to ${upNext.name}`
-              : " · maxed the ladder"}
+            (Max streak: {bestSoFar} {bestSoFar === 1 ? "day" : "days"})
+            {upNext && (
+              <>
+                {" "}
+                ({upNext.min - days} {upNext.min - days === 1 ? "day" : "days"} to {upNext.name})
+              </>
+            )}
+            {!upNext && " (maxed the ladder)"}
           </p>
         </div>
         <button
           onClick={() => setConfirmOpen(true)}
-          className="text-xs text-paper-dim hover:text-red-400 transition-colors px-2 py-1"
+          className="text-xs text-paper-dim hover:text-red-400 transition-colors px-2 py-1 shrink-0"
         >
           Reset
         </button>
@@ -155,6 +160,14 @@ export default function DisciplineCard({
           onConfirm={handleReset}
         />
       )}
+      {archiveOpen && (
+        <ArchiveConfirmDialog
+          name={discipline.name}
+          busy={archiving}
+          onCancel={() => setArchiveOpen(false)}
+          onConfirm={handleArchive}
+        />
+      )}
       {historyOpen && (
         <ResetHistoryModal
           disciplineId={discipline.id}
@@ -162,8 +175,8 @@ export default function DisciplineCard({
           onClose={() => setHistoryOpen(false)}
         />
       )}
-      {notionOpen && (
-        <NotionCardModal discipline={discipline} onClose={() => setNotionOpen(false)} />
+      {shareOpen && (
+        <ShareCardModal discipline={discipline} onClose={() => setShareOpen(false)} />
       )}
     </motion.div>
   );

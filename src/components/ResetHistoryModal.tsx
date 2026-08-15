@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatDate } from "@/lib/format";
-
-interface ResetEntry {
-  id: string;
-  streak_reached: number;
-  note: string | null;
-  reset_at: string;
-}
+import type { ResetEntry } from "@/types";
 
 export default function ResetHistoryModal({
   disciplineId,
@@ -48,12 +42,12 @@ export default function ResetHistoryModal({
           <ul className="flex flex-col gap-3">
             {entries.map((e) => (
               <li key={e.id} className="border-b border-ember-line pb-3 last:border-0 last:pb-0">
-                <div className="flex items-baseline justify-between gap-3">
+                <div className="flex items-baseline justify-between gap-3 flex-wrap">
                   <span className="font-mono text-sm">
                     {e.streak_reached} {e.streak_reached === 1 ? "day" : "days"}
                   </span>
-                  <span className="text-paper-dim text-xs shrink-0">
-                    {formatDate(e.reset_at)}
+                  <span className="text-paper-dim text-xs">
+                    {formatDate(e.run_start)} to {formatDate(e.reset_at)}
                   </span>
                 </div>
                 {e.note && <p className="text-paper-dim text-xs mt-1">{e.note}</p>}

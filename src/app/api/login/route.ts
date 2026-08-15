@@ -15,7 +15,8 @@ export async function POST(req: Request) {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 365,
+    // No maxAge: a session cookie, cleared when the browser/app fully
+    // closes, so the passcode is asked for again next time it's opened.
     path: "/",
   });
   return res;

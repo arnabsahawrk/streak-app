@@ -13,17 +13,16 @@ export default function AddDisciplineModal({
   const [why, setWhy] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const canSubmit = name.trim().length > 0 && why.trim().length > 0;
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!canSubmit) return;
     setSaving(true);
     await fetch("/api/disciplines", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: name.trim(),
-        why_note: why.trim() || undefined,
-      }),
+      body: JSON.stringify({ name: name.trim(), why_note: why.trim() }),
     });
     setSaving(false);
     onCreated();
@@ -45,16 +44,19 @@ export default function AddDisciplineModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Name it plainly"
+          required
           className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-4 focus:outline-none focus:border-flame"
         />
 
         <label className="block text-xs text-paper-dim mb-1.5">
-          Why (optional, shown on the card)
+          Why — required, shown in full on the card
         </label>
         <textarea
           value={why}
           onChange={(e) => setWhy(e.target.value)}
-          rows={2}
+          rows={3}
+          required
+          placeholder="The reason you're doing this"
           className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-6 resize-none focus:outline-none focus:border-flame"
         />
 
@@ -68,7 +70,7 @@ export default function AddDisciplineModal({
           </button>
           <button
             type="submit"
-            disabled={saving || !name.trim()}
+            disabled={saving || !canSubmit}
             className="flex-1 rounded-lg bg-flame text-ash font-semibold py-2.5 text-sm disabled:opacity-40"
           >
             {saving ? "Adding…" : "Start the streak"}

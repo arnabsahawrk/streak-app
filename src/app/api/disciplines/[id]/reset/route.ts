@@ -26,12 +26,17 @@ export async function POST(
     returning *
   `;
 
+  let finalRow = updated;
   if (streak > 0) {
     await sql`
-      insert into reset_log (discipline_id, streak_reached, note)
-      values (${id}, ${streak}, ${note})
+      insert into reset_log (discipline_id, streak_reached, note, run_start)
+      values (${id}, ${streak}, ${note}, ${discipline.start_date})
     `;
+    const [bumped] = await sql`
+      update disciplines set reset_count = reset_count + 1 where id = ${id} returning *
+    `;
+    finalRow = bumped;
   }
 
-  return NextResponse.json(updated);
+  return NextResponse.json(finalRow);
 }
