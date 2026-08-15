@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { animate } from "motion/react";
+import { dayWord } from "@/lib/format";
 
 export default function StreakCounter({
   value,
@@ -27,7 +28,7 @@ export default function StreakCounter({
     <p className="font-mono text-4xl font-semibold tabular-nums leading-none" style={{ color }}>
       {display}
       <span className="text-base font-normal text-paper-dim ml-1.5">
-        {display === 1 ? "day" : "days"}
+        {dayWord(display)}
       </span>
     </p>
   );

@@ -48,9 +48,7 @@ export default function AddDisciplineModal({
           className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-4 focus:outline-none focus:border-flame"
         />
 
-        <label className="block text-xs text-paper-dim mb-1.5">
-          Why — required, shown in full on the card
-        </label>
+        <label className="block text-xs text-paper-dim mb-1.5">Why</label>
         <textarea
           value={why}
           onChange={(e) => setWhy(e.target.value)}

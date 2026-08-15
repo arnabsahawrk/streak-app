@@ -31,10 +31,12 @@ export default function ShareCardModal({
         </div>
 
         <p className="text-paper-dim text-xs mb-4">
-          One link. Paste it as an image in Notion (or anywhere else) and it
-          redraws itself from today&apos;s data every time it loads. Open the
-          same link directly in a browser instead of embedding it, and you
-          get a Reset button on it too.
+          One link, two ways to use it. In Notion, type <strong>/embed</strong>{" "}
+          and paste this link — that gives you a live, clickable card with a
+          working Reset button, same as it looks below. Pasting it as an{" "}
+          <strong>image</strong> instead only shows a picture; pictures can&apos;t
+          be clicked, in Notion or anywhere else — so use /embed if you want
+          the Reset button to work.
         </p>
 
         <img

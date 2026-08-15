@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatDate } from "@/lib/format";
+import { formatDate, dayWord } from "@/lib/format";
 import type { ResetEntry } from "@/types";
 
 export default function ResetHistoryModal({
@@ -44,7 +44,7 @@ export default function ResetHistoryModal({
               <li key={e.id} className="border-b border-ember-line pb-3 last:border-0 last:pb-0">
                 <div className="flex items-baseline justify-between gap-3 flex-wrap">
                   <span className="font-mono text-sm">
-                    {e.streak_reached} {e.streak_reached === 1 ? "day" : "days"}
+                    {e.streak_reached} {dayWord(e.streak_reached)}
                   </span>
                   <span className="text-paper-dim text-xs">
                     {formatDate(e.run_start)} to {formatDate(e.reset_at)}

@@ -6,7 +6,7 @@ import confetti from "canvas-confetti";
 import type { Discipline } from "@/types";
 import { currentStreakDays } from "@/lib/streak";
 import { getTier, nextTier, TIERS } from "@/lib/tiers";
-import { formatDate } from "@/lib/format";
+import { formatDate, dayWord } from "@/lib/format";
 import StreakCounter from "./StreakCounter";
 import ConfirmDialog from "./ConfirmDialog";
 import ArchiveConfirmDialog from "./ArchiveConfirmDialog";
@@ -80,10 +80,10 @@ export default function DisciplineCard({
       style={{ boxShadow: `inset 3px 0 0 0 ${tier.color}` }}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-medium">{discipline.name}</p>
-          <p className="text-paper-dim text-xs mt-0.5">{discipline.why_note}</p>
-          <p className="text-paper-dim text-[11px] mt-1">
+        <div className="min-w-0 flex-1">
+          <p className="text-lg font-semibold break-words">{discipline.name}</p>
+          <p className="text-paper-dim text-xs mt-1 break-words">{discipline.why_note}</p>
+          <p className="text-paper-dim text-[11px] mt-1.5">
             started {formatDate(discipline.start_date)}
           </p>
         </div>
@@ -96,13 +96,13 @@ export default function DisciplineCard({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.85 }}
               transition={{ duration: 0.25 }}
-              className="text-[11px] font-mono uppercase tracking-wide px-2 py-1 rounded-full"
+              className="text-[11px] font-mono uppercase tracking-wide px-2 py-1 rounded-full whitespace-nowrap"
               style={{ color: tier.color, backgroundColor: `${tier.color}1A` }}
             >
               {tier.name}
             </motion.span>
           </AnimatePresence>
-          <div className="flex gap-2.5 text-[11px] text-paper-dim">
+          <div className="flex gap-2.5 text-[11px] text-paper-dim whitespace-nowrap">
             {discipline.reset_count > 0 && (
               <button onClick={() => setHistoryOpen(true)} className="hover:text-paper transition-colors">
                 History
@@ -134,12 +134,9 @@ export default function DisciplineCard({
             </motion.p>
           </AnimatePresence>
           <p className="text-paper-dim text-xs mt-1">
-            (Max streak: {bestSoFar} {bestSoFar === 1 ? "day" : "days"})
+            (Max streak: {bestSoFar} {dayWord(bestSoFar)})
             {upNext && (
-              <>
-                {" "}
-                ({upNext.min - days} {upNext.min - days === 1 ? "day" : "days"} to {upNext.name})
-              </>
+              <> ({upNext.min - days} {dayWord(upNext.min - days)} to {upNext.name})</>
             )}
             {!upNext && " (maxed the ladder)"}
           </p>

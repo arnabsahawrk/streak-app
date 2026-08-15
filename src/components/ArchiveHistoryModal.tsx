@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Discipline } from "@/types";
 import { currentStreakDays } from "@/lib/streak";
-import { formatDate } from "@/lib/format";
+import { formatDate, dayWord } from "@/lib/format";
 
 export default function ArchiveHistoryModal({
   onClose,
@@ -58,7 +58,7 @@ export default function ArchiveHistoryModal({
                   <p className="font-medium">{d.name}</p>
                   <p className="text-paper-dim text-xs mt-0.5">{d.why_note}</p>
                   <p className="text-paper-dim text-xs mt-1.5">
-                    Reached {frozenDays} {frozenDays === 1 ? "day" : "days"} · archived{" "}
+                    Reached {frozenDays} {dayWord(frozenDays)} · archived{" "}
                     {d.archived_at ? formatDate(d.archived_at) : "—"}
                   </p>
                   <button

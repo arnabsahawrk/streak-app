@@ -10,7 +10,7 @@ export interface Tier {
 // itself. This is its own state, with its own color.
 export const ZERO_STATE: Tier = {
   name: "Day 0",
-  line: "Ready when you are.",
+  line: "I can do this all day.",
   color: "#EF4444",
   min: 0,
 };

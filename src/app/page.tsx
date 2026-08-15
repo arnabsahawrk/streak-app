@@ -15,13 +15,18 @@ const NOTION_URL =
 export default function DashboardPage() {
   const router = useRouter();
   const [disciplines, setDisciplines] = useState<Discipline[] | null>(null);
+  const [hasArchived, setHasArchived] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/disciplines");
-    const data = await res.json();
-    setDisciplines(data);
+    const [activeRes, archivedRes] = await Promise.all([
+      fetch("/api/disciplines"),
+      fetch("/api/disciplines?archived=true"),
+    ]);
+    setDisciplines(await activeRes.json());
+    const archived = await archivedRes.json();
+    setHasArchived(Array.isArray(archived) && archived.length > 0);
   }, []);
 
   useEffect(() => {
@@ -59,9 +64,11 @@ export default function DashboardPage() {
             Read commitment ↗
           </a>
           <div className="flex gap-3 text-paper-dim px-1">
-            <button onClick={() => setShowArchive(true)} className="hover:text-paper transition-colors">
-              Archive history
-            </button>
+            {hasArchived && (
+              <button onClick={() => setShowArchive(true)} className="hover:text-paper transition-colors">
+                Archive history
+              </button>
+            )}
             <button onClick={lock} className="hover:text-paper transition-colors">
               Lock
             </button>
