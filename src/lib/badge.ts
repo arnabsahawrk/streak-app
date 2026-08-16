@@ -31,21 +31,19 @@ export function renderBadgeSvg(d: BadgeData): string {
   const dw = dayWord(d.days);
   const cx = 240;
 
-  return `<svg width="480" height="360" viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="480" height="300" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <radialGradient id="glow" cx="50%" cy="42%" r="55%">
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
       <stop offset="0%" stop-color="${d.tierColor}" stop-opacity="0.25"/>
       <stop offset="100%" stop-color="${d.tierColor}" stop-opacity="0"/>
     </radialGradient>
   </defs>
-  <rect width="480" height="360" fill="#16140F"/>
-  <rect width="480" height="360" fill="url(#glow)"/>
-  <text x="${cx}" y="52" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="2" fill="#A69C8A">${name}</text>
-  <text x="${cx}" y="170" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="88" font-weight="700" fill="${d.tierColor}">${d.days}</text>
-  <text x="${cx}" y="196" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" letter-spacing="2" fill="#A69C8A">${dw.toUpperCase()}</text>
-  <text x="${cx}" y="234" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="600" letter-spacing="1.5" fill="${d.tierColor}">${tierName}</text>
-  <text x="${cx}" y="266" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#EFE9DE">${line}</text>
-  <rect x="170" y="300" width="140" height="40" rx="20" fill="none" stroke="${d.tierColor}" stroke-width="1.5"/>
-  <text x="${cx}" y="325" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="1" fill="${d.tierColor}">RESET</text>
+  <rect width="480" height="300" fill="#16140F"/>
+  <rect width="480" height="300" fill="url(#glow)"/>
+  <text x="${cx}" y="46" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="2" fill="#A69C8A">${name}</text>
+  <text x="${cx}" y="160" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="84" font-weight="700" fill="${d.tierColor}">${d.days}</text>
+  <text x="${cx}" y="186" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" letter-spacing="2" fill="#A69C8A">${dw.toUpperCase()}</text>
+  <text x="${cx}" y="223" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="600" letter-spacing="1.5" fill="${d.tierColor}">${tierName}</text>
+  <text x="${cx}" y="255" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#EFE9DE">${line}</text>
 </svg>`;
 }

@@ -53,18 +53,18 @@ computed as of `archived_at`, not live, so the number stops moving.
   badge and the "days to next tier" line never contradict each other.
 - **Why is required.** Every commitment needs a reason; it's shown in full
   on the card, never truncated.
-- **Archiving doesn't delete.** It freezes the streak, stops the count, and
-  moves the item into Archive history (button in the header) — nothing is
-  removed from the database. Restoring starts a fresh count rather than
-  resuming a stale one.
+- **Archiving is permanent.** It freezes the streak (computed as of
+  `archived_at`, not live) and moves the item to Archive history (button in
+  the header, only visible once something's actually there) — there's no
+  restore. Confirming requires typing the discipline's name.
 - **History** (past resets, with the date range each run covered) only
   shows once a discipline has actually had a reset — the button stays
   hidden until then.
-- **The Share link** (`/api/badge/[id]?token=...`) is one URL that does two
-  things depending on how it's requested: embedded as an image (e.g. in
-  Notion), it returns a live SVG that redraws itself from the database on
-  every fetch. Opened directly in a browser, it returns an interactive page
-  with a real Reset button. Anyone with the link can view or reset that one
-  discipline — it doesn't check your passcode — so don't post it publicly.
+- **The Share link** (`/api/badge/[id]?token=...`) is read-only by design —
+  it always returns a live SVG snapshot of that discipline's current state,
+  nothing else reachable from it. Paste it as an image anywhere (Notion
+  included) and it redraws itself from the database on every fetch. Anyone
+  with the link can view that one discipline's streak — it doesn't check
+  your passcode — so don't post it publicly.
 - The Notion commitment link in the header is hardcoded in
   `src/app/page.tsx`.

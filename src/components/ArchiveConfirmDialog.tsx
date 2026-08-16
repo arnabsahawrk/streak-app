@@ -21,8 +21,8 @@ export default function ArchiveConfirmDialog({
       <div className="w-full sm:max-w-sm bg-ash-raised border border-ember-line rounded-t-2xl sm:rounded-2xl p-6">
         <h2 className="text-lg font-semibold mb-1">Archive this commitment?</h2>
         <p className="text-paper-dim text-sm mb-4">
-          It stops counting and moves to Archive history — nothing is deleted, and
-          you can restore it later. To confirm, type its name:
+          It stops counting and moves to Archive history — this can&apos;t be
+          undone. To confirm, type its name:
         </p>
         <p className="font-mono text-sm mb-2 text-paper">{name}</p>
         <input

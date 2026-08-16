@@ -113,7 +113,7 @@ export default function DashboardPage() {
         />
       )}
       {showArchive && (
-        <ArchiveHistoryModal onClose={() => setShowArchive(false)} onRestored={load} />
+        <ArchiveHistoryModal onClose={() => setShowArchive(false)} />
       )}
     </main>
   );

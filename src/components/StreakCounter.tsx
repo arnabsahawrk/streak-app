@@ -25,11 +25,16 @@ export default function StreakCounter({
   }, [value]);
 
   return (
-    <p className="font-mono text-4xl font-semibold tabular-nums leading-none" style={{ color }}>
-      {display}
-      <span className="text-base font-normal text-paper-dim ml-1.5">
+    <div className="text-center">
+      <p
+        className="font-mono text-7xl font-bold tabular-nums leading-none"
+        style={{ color }}
+      >
+        {display}
+      </p>
+      <p className="text-paper-dim text-xs tracking-[0.3em] uppercase mt-2">
         {dayWord(display)}
-      </span>
-    </p>
+      </p>
+    </div>
   );
 }

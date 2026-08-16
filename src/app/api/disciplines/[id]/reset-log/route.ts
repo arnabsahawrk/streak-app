@@ -7,7 +7,7 @@ export async function GET(
 ) {
   const { id } = await params;
   const rows = await sql`
-    select id, streak_reached, note, reset_at
+    select id, streak_reached, note, run_start, reset_at
     from reset_log
     where discipline_id = ${id}
     order by reset_at desc

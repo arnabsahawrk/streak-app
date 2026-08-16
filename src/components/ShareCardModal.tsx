@@ -31,12 +31,10 @@ export default function ShareCardModal({
         </div>
 
         <p className="text-paper-dim text-xs mb-4">
-          One link, two ways to use it. In Notion, type <strong>/embed</strong>{" "}
-          and paste this link — that gives you a live, clickable card with a
-          working Reset button, same as it looks below. Pasting it as an{" "}
-          <strong>image</strong> instead only shows a picture; pictures can&apos;t
-          be clicked, in Notion or anywhere else — so use /embed if you want
-          the Reset button to work.
+          One link, read-only. Paste it as an image in Notion (or anywhere
+          else) and it redraws itself from today&apos;s data every time it
+          loads. There&apos;s nothing clickable on it — it only ever
+          displays.
         </p>
 
         <img
@@ -60,8 +58,9 @@ export default function ShareCardModal({
           </button>
         </div>
         <p className="text-paper-dim text-[11px] mt-2">
-          Anyone with this link can view or reset this one commitment — it
-          doesn&apos;t need your passcode. Don&apos;t post it anywhere public.
+          Anyone with this link can view this one discipline&apos;s current
+          streak — it doesn&apos;t need your passcode. Don&apos;t post it
+          anywhere public.
         </p>
       </div>
     </div>

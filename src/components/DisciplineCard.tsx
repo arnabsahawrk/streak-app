@@ -43,7 +43,7 @@ export default function DisciplineCard({
     confetti({
       particleCount: 90,
       spread: 75,
-      origin: { y: 0.7 },
+      origin: { y: 0.6 },
       colors: [tier.color, "#EFE9DE"],
     });
     setPulse(true);
@@ -74,76 +74,85 @@ export default function DisciplineCard({
 
   return (
     <motion.div
-      animate={pulse ? { scale: [1, 1.025, 1] } : { scale: 1 }}
+      animate={pulse ? { scale: [1, 1.02, 1] } : { scale: 1 }}
       transition={{ duration: 0.7, ease: "easeOut" }}
-      className="relative rounded-2xl bg-ash-raised border border-ember-line pl-5 pr-4 py-4"
-      style={{ boxShadow: `inset 3px 0 0 0 ${tier.color}` }}
+      className="relative overflow-hidden rounded-2xl bg-ash-raised border border-ember-line px-6 pt-5 pb-6 text-center"
+      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}` }}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-lg font-semibold break-words">{discipline.name}</p>
-          <p className="text-paper-dim text-xs mt-1 break-words">{discipline.why_note}</p>
-          <p className="text-paper-dim text-[11px] mt-1.5">
-            started {formatDate(discipline.start_date)}
-          </p>
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: `radial-gradient(circle at 50% 38%, ${tier.color}1F, transparent 65%)`,
+        }}
+        aria-hidden
+      />
+
+      <div className="relative">
+        <p className="text-lg font-semibold break-words">{discipline.name}</p>
+        <p className="text-paper-dim text-xs mt-1 break-words">{discipline.why_note}</p>
+
+        <div className="mt-5">
+          <StreakCounter value={days} color={tier.color} />
         </div>
 
-        <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={tier.name}
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.85 }}
-              transition={{ duration: 0.25 }}
-              className="text-[11px] font-mono uppercase tracking-wide px-2 py-1 rounded-full whitespace-nowrap"
-              style={{ color: tier.color, backgroundColor: `${tier.color}1A` }}
-            >
-              {tier.name}
-            </motion.span>
-          </AnimatePresence>
-          <div className="flex gap-2.5 text-[11px] text-paper-dim whitespace-nowrap">
-            {discipline.reset_count > 0 && (
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={tier.name}
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.25 }}
+            className="inline-block mt-3 text-[11px] font-mono uppercase tracking-wide px-2.5 py-1 rounded-full"
+            style={{ color: tier.color, backgroundColor: `${tier.color}1A` }}
+          >
+            {tier.name}
+          </motion.span>
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={tier.line}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.25 }}
+            className="text-paper text-sm font-bold mt-2"
+          >
+            {tier.line}
+          </motion.p>
+        </AnimatePresence>
+
+        <p className="text-paper-dim text-xs mt-3">
+          (Max streak: {bestSoFar} {dayWord(bestSoFar)})
+          {upNext && (
+            <> ({upNext.min - days} {dayWord(upNext.min - days)} to {upNext.name})</>
+          )}
+          {!upNext && " (maxed the ladder)"}
+        </p>
+
+        <div className="flex items-center justify-center flex-wrap gap-x-3 gap-y-1 text-[11px] text-paper-dim mt-4">
+          <span>started {formatDate(discipline.start_date)}</span>
+          {discipline.reset_count > 0 && (
+            <>
+              <span>·</span>
               <button onClick={() => setHistoryOpen(true)} className="hover:text-paper transition-colors">
                 History
               </button>
-            )}
-            <button onClick={() => setShareOpen(true)} className="hover:text-paper transition-colors">
-              Share
-            </button>
-            <button onClick={() => setArchiveOpen(true)} className="hover:text-paper transition-colors">
-              Archive
-            </button>
-          </div>
+            </>
+          )}
+          <span>·</span>
+          <button onClick={() => setShareOpen(true)} className="hover:text-paper transition-colors">
+            Share
+          </button>
+          <span>·</span>
+          <button onClick={() => setArchiveOpen(true)} className="hover:text-paper transition-colors">
+            Archive
+          </button>
         </div>
-      </div>
 
-      <div className="flex items-end justify-between mt-4 gap-3">
-        <div className="min-w-0">
-          <StreakCounter value={days} color={tier.color} />
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={tier.line}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.25 }}
-              className="text-paper text-sm font-bold mt-1"
-            >
-              {tier.line}
-            </motion.p>
-          </AnimatePresence>
-          <p className="text-paper-dim text-xs mt-1">
-            (Max streak: {bestSoFar} {dayWord(bestSoFar)})
-            {upNext && (
-              <> ({upNext.min - days} {dayWord(upNext.min - days)} to {upNext.name})</>
-            )}
-            {!upNext && " (maxed the ladder)"}
-          </p>
-        </div>
         <button
           onClick={() => setConfirmOpen(true)}
-          className="text-xs text-paper-dim hover:text-red-400 transition-colors px-2 py-1 shrink-0"
+          className="mt-4 rounded-full border border-ember-line px-5 py-1.5 text-xs text-paper-dim hover:text-red-400 hover:border-red-400/40 transition-colors"
         >
           Reset
         </button>
