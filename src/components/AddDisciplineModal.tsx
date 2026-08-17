@@ -12,6 +12,7 @@ export default function AddDisciplineModal({
   const [name, setName] = useState("");
   const [why, setWhy] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const canSubmit = name.trim().length > 0 && why.trim().length > 0;
 
@@ -19,13 +20,20 @@ export default function AddDisciplineModal({
     e.preventDefault();
     if (!canSubmit) return;
     setSaving(true);
-    await fetch("/api/disciplines", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim(), why_note: why.trim() }),
-    });
-    setSaving(false);
-    onCreated();
+    setError(null);
+    try {
+      const res = await fetch("/api/disciplines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), why_note: why.trim() }),
+      });
+      if (!res.ok) throw new Error();
+      onCreated();
+    } catch {
+      setError("Couldn't save — check your connection and try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -43,7 +51,7 @@ export default function AddDisciplineModal({
           autoFocus
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Name it plainly"
+          placeholder="e.g. No phone after 10pm"
           required
           className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-4 focus:outline-none focus:border-flame"
         />
@@ -54,9 +62,11 @@ export default function AddDisciplineModal({
           onChange={(e) => setWhy(e.target.value)}
           rows={3}
           required
-          placeholder="The reason you're doing this"
+          placeholder="e.g. I keep losing hours to it right before bed"
           className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-6 resize-none focus:outline-none focus:border-flame"
         />
+
+        {error && <p className="text-red-400 text-xs mb-4">{error}</p>}
 
         <div className="flex gap-2">
           <button

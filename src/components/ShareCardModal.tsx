@@ -31,10 +31,10 @@ export default function ShareCardModal({
         </div>
 
         <p className="text-paper-dim text-xs mb-4">
-          One link, read-only. Paste it as an image in Notion (or anywhere
-          else) and it redraws itself from today&apos;s data every time it
-          loads. There&apos;s nothing clickable on it — it only ever
-          displays.
+          Paste this into Notion (or anywhere that takes an image) and it
+          always shows today&apos;s real number — no re-copying a link every
+          day. It&apos;s just a picture, so there&apos;s nothing on it to
+          click.
         </p>
 
         <img
@@ -58,9 +58,8 @@ export default function ShareCardModal({
           </button>
         </div>
         <p className="text-paper-dim text-[11px] mt-2">
-          Anyone with this link can view this one discipline&apos;s current
-          streak — it doesn&apos;t need your passcode. Don&apos;t post it
-          anywhere public.
+          Anyone who has this link can see this streak — no passcode needed
+          — so keep it somewhere private, like your own Notion page.
         </p>
       </div>
     </div>

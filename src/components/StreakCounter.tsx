@@ -27,12 +27,12 @@ export default function StreakCounter({
   return (
     <div className="text-center">
       <p
-        className="font-mono text-7xl font-bold tabular-nums leading-none"
+        className="font-mono text-6xl font-bold tabular-nums leading-none"
         style={{ color }}
       >
         {display}
       </p>
-      <p className="text-paper-dim text-xs tracking-[0.3em] uppercase mt-2">
+      <p className="text-paper-dim text-[10px] tracking-[0.25em] uppercase mt-2">
         {dayWord(display)}
       </p>
     </div>

@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import confetti from "canvas-confetti";
+import { History, Share2, Archive as ArchiveIcon } from "lucide-react";
 import type { Discipline } from "@/types";
 import { currentStreakDays } from "@/lib/streak";
 import { getTier, nextTier, TIERS } from "@/lib/tiers";
 import { formatDate, dayWord } from "@/lib/format";
 import StreakCounter from "./StreakCounter";
+import ProgressRing from "./ProgressRing";
 import ConfirmDialog from "./ConfirmDialog";
 import ArchiveConfirmDialog from "./ArchiveConfirmDialog";
 import ResetHistoryModal from "./ResetHistoryModal";
@@ -27,11 +29,13 @@ export default function DisciplineCard({
   const [resetting, setResetting] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [pulse, setPulse] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const days = currentStreakDays(discipline.start_date);
   const tier = getTier(days);
   const upNext = nextTier(days);
   const bestSoFar = Math.max(discipline.max_streak, days);
+  const progress = upNext ? (days - tier.min) / (upNext.min - tier.min) : 1;
 
   const justHitMilestone = useMemo(
     () => TIERS.some((t) => t.min === days && days > 0),
@@ -54,45 +58,60 @@ export default function DisciplineCard({
 
   async function handleReset(note: string) {
     setResetting(true);
-    await fetch(`/api/disciplines/${discipline.id}/reset`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ note }),
-    });
-    setResetting(false);
-    setConfirmOpen(false);
-    onChange();
+    setError(null);
+    try {
+      const res = await fetch(`/api/disciplines/${discipline.id}/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note }),
+      });
+      if (!res.ok) throw new Error();
+      setConfirmOpen(false);
+      onChange();
+    } catch {
+      setError("Couldn't reset — check your connection and try again.");
+    } finally {
+      setResetting(false);
+    }
   }
 
   async function handleArchive() {
     setArchiving(true);
-    await fetch(`/api/disciplines/${discipline.id}/archive`, { method: "POST" });
-    setArchiving(false);
-    setArchiveOpen(false);
-    onChange();
+    setError(null);
+    try {
+      const res = await fetch(`/api/disciplines/${discipline.id}/archive`, { method: "POST" });
+      if (!res.ok) throw new Error();
+      setArchiveOpen(false);
+      onChange();
+    } catch {
+      setError("Couldn't archive — check your connection and try again.");
+    } finally {
+      setArchiving(false);
+    }
   }
 
   return (
     <motion.div
       animate={pulse ? { scale: [1, 1.02, 1] } : { scale: 1 }}
       transition={{ duration: 0.7, ease: "easeOut" }}
-      className="relative overflow-hidden rounded-2xl bg-ash-raised border border-ember-line px-6 pt-5 pb-6 text-center"
-      style={{ boxShadow: `inset 0 3px 0 0 ${tier.color}` }}
+      className="relative overflow-hidden rounded-2xl bg-ash-raised border border-ember-line px-6 pt-6 pb-5"
     >
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          background: `radial-gradient(circle at 50% 38%, ${tier.color}1F, transparent 65%)`,
+          background: `radial-gradient(circle at 50% 30%, ${tier.color}1F, transparent 65%)`,
         }}
         aria-hidden
       />
 
-      <div className="relative">
+      <div className="relative flex flex-col items-center text-center">
         <p className="text-lg font-semibold break-words">{discipline.name}</p>
-        <p className="text-paper-dim text-xs mt-1 break-words">{discipline.why_note}</p>
+        <p className="text-paper-dim text-xs mt-1 break-words max-w-xs">{discipline.why_note}</p>
 
         <div className="mt-5">
-          <StreakCounter value={days} color={tier.color} />
+          <ProgressRing progress={progress} color={tier.color}>
+            <StreakCounter value={days} color={tier.color} />
+          </ProgressRing>
         </div>
 
         <AnimatePresence mode="wait">
@@ -102,7 +121,7 @@ export default function DisciplineCard({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.85 }}
             transition={{ duration: 0.25 }}
-            className="inline-block mt-3 text-[11px] font-mono uppercase tracking-wide px-2.5 py-1 rounded-full"
+            className="mt-4 text-[11px] font-mono uppercase tracking-wide px-2.5 py-1 rounded-full"
             style={{ color: tier.color, backgroundColor: `${tier.color}1A` }}
           >
             {tier.name}
@@ -116,7 +135,7 @@ export default function DisciplineCard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.25 }}
-            className="text-paper text-sm font-bold mt-2"
+            className="text-paper text-sm font-bold mt-2 max-w-xs"
           >
             {tier.line}
           </motion.p>
@@ -130,32 +149,48 @@ export default function DisciplineCard({
           {!upNext && " (maxed the ladder)"}
         </p>
 
-        <div className="flex items-center justify-center flex-wrap gap-x-3 gap-y-1 text-[11px] text-paper-dim mt-4">
-          <span>started {formatDate(discipline.start_date)}</span>
-          {discipline.reset_count > 0 && (
-            <>
-              <span>·</span>
-              <button onClick={() => setHistoryOpen(true)} className="hover:text-paper transition-colors">
-                History
-              </button>
-            </>
-          )}
-          <span>·</span>
-          <button onClick={() => setShareOpen(true)} className="hover:text-paper transition-colors">
-            Share
-          </button>
-          <span>·</span>
-          <button onClick={() => setArchiveOpen(true)} className="hover:text-paper transition-colors">
-            Archive
-          </button>
-        </div>
-
         <button
           onClick={() => setConfirmOpen(true)}
-          className="mt-4 rounded-full border border-ember-line px-5 py-1.5 text-xs text-paper-dim hover:text-red-400 hover:border-red-400/40 transition-colors"
+          className="mt-5 rounded-full bg-ash border border-ember-line px-6 py-2 text-sm font-medium hover:border-red-400/50 hover:text-red-400 transition-colors"
         >
           Reset
         </button>
+
+        <div className="w-full border-t border-ember-line mt-5 pt-3 flex items-center justify-between">
+          <span className="text-paper-dim text-[11px]">
+            started {formatDate(discipline.start_date)}
+          </span>
+          <div className="flex items-center gap-3 text-paper-dim">
+            {discipline.reset_count > 0 && (
+              <button
+                onClick={() => setHistoryOpen(true)}
+                aria-label="History"
+                title="History"
+                className="hover:text-paper transition-colors"
+              >
+                <History size={15} strokeWidth={2} />
+              </button>
+            )}
+            <button
+              onClick={() => setShareOpen(true)}
+              aria-label="Share"
+              title="Share"
+              className="hover:text-paper transition-colors"
+            >
+              <Share2 size={15} strokeWidth={2} />
+            </button>
+            <button
+              onClick={() => setArchiveOpen(true)}
+              aria-label="Archive"
+              title="Archive"
+              className="hover:text-paper transition-colors"
+            >
+              <ArchiveIcon size={15} strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+
+        {error && <p className="text-red-400 text-xs mt-3">{error}</p>}
       </div>
 
       {confirmOpen && (

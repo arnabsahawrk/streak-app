@@ -48,23 +48,28 @@ computed as of `archived_at`, not live, so the number stops moving.
 ## Notes
 
 - **Tiers** live in `src/lib/tiers.ts` — names, motivating lines, colors,
-  and day thresholds are all just data. Day 0 is its own state
-  (`ZERO_STATE`, red), separate from the "Begin" tier proper, so the tier
-  badge and the "days to next tier" line never contradict each other.
+  and day thresholds are all just data. Colors follow real metal
+  temperature/tempering colors rather than an arbitrary rainbow (see the
+  comment there for the full reasoning). Day 0 is its own state
+  (`ZERO_STATE`), separate from the "Begin" tier proper, so the tier badge
+  and the "days to next tier" line never contradict each other.
 - **Why is required.** Every commitment needs a reason; it's shown in full
-  on the card, never truncated.
-- **Archiving is permanent.** It freezes the streak (computed as of
-  `archived_at`, not live) and moves the item to Archive history (button in
-  the header, only visible once something's actually there) — there's no
-  restore. Confirming requires typing the discipline's name.
+  on the card, never truncated — the card's height simply grows to fit it.
+- **Archiving is permanent.** It freezes the *best* streak that discipline
+  ever reached (banked into `max_streak` at archive time) and moves the
+  item to Archive history (button in the header, only visible once
+  something's actually there) — there's no restore. Confirming requires
+  typing the discipline's name. Its Share link stops working the moment
+  it's archived.
 - **History** (past resets, with the date range each run covered) only
   shows once a discipline has actually had a reset — the button stays
   hidden until then.
 - **The Share link** (`/api/badge/[id]?token=...`) is read-only by design —
   it always returns a live SVG snapshot of that discipline's current state,
-  nothing else reachable from it. Paste it as an image anywhere (Notion
-  included) and it redraws itself from the database on every fetch. Anyone
-  with the link can view that one discipline's streak — it doesn't check
-  your passcode — so don't post it publicly.
+  nothing else reachable from it, and it 404s once that discipline is
+  archived. Paste it as an image anywhere (Notion included) and it redraws
+  itself from the database on every fetch. Anyone with the link can view
+  that one discipline's streak while it's active — it doesn't check your
+  passcode — so don't post it publicly.
 - The Notion commitment link in the header is hardcoded in
   `src/app/page.tsx`.

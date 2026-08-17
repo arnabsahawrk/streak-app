@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import type { Discipline } from "@/types";
-import { currentStreakDays } from "@/lib/streak";
 import { formatDate, dayWord } from "@/lib/format";
 
 export default function ArchiveHistoryModal({ onClose }: { onClose: () => void }) {
@@ -20,7 +19,7 @@ export default function ArchiveHistoryModal({ onClose }: { onClose: () => void }
       <div className="w-full sm:max-w-sm bg-ash-raised border border-ember-line rounded-t-2xl sm:rounded-2xl p-6 max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Archive history</h2>
-          <button onClick={onClose} className="text-paper-dim text-sm">
+          <button onClick={onClose} className="text-paper-dim text-sm shrink-0">
             Close
           </button>
         </div>
@@ -31,21 +30,16 @@ export default function ArchiveHistoryModal({ onClose }: { onClose: () => void }
           <p className="text-paper-dim text-sm">Nothing archived yet.</p>
         ) : (
           <ul className="flex flex-col gap-4">
-            {items.map((d) => {
-              const frozenDays = d.archived_at
-                ? currentStreakDays(d.start_date, d.archived_at)
-                : 0;
-              return (
-                <li key={d.id} className="border-b border-ember-line pb-4 last:border-0 last:pb-0">
-                  <p className="font-medium">{d.name}</p>
-                  <p className="text-paper-dim text-xs mt-0.5">{d.why_note}</p>
-                  <p className="text-paper-dim text-xs mt-1.5">
-                    Reached {frozenDays} {dayWord(frozenDays)} · archived{" "}
-                    {d.archived_at ? formatDate(d.archived_at) : "—"}
-                  </p>
-                </li>
-              );
-            })}
+            {items.map((d) => (
+              <li key={d.id} className="border-b border-ember-line pb-4 last:border-0 last:pb-0">
+                <p className="font-medium break-words">{d.name}</p>
+                <p className="text-paper-dim text-xs mt-0.5 break-words">{d.why_note}</p>
+                <p className="text-paper-dim text-xs mt-1.5">
+                  Best streak: {d.max_streak} {dayWord(d.max_streak)} · archived{" "}
+                  {d.archived_at ? formatDate(d.archived_at) : "—"}
+                </p>
+              </li>
+            ))}
           </ul>
         )}
       </div>

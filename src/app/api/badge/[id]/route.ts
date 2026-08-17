@@ -14,7 +14,7 @@ export async function GET(
   const token = new URL(req.url).searchParams.get("token");
 
   const [d] = await sql`select * from disciplines where id = ${id}`;
-  if (!d || !token || token !== d.public_token) {
+  if (!d || !token || token !== d.public_token || d.archived) {
     return new Response("Not found", { status: 404 });
   }
 

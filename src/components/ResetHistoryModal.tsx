@@ -26,7 +26,7 @@ export default function ResetHistoryModal({
     <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-0 sm:p-6">
       <div className="w-full sm:max-w-sm bg-ash-raised border border-ember-line rounded-t-2xl sm:rounded-2xl p-6 max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold truncate pr-3">{disciplineName}</h2>
+          <h2 className="text-lg font-semibold break-words pr-3">{disciplineName}</h2>
           <button onClick={onClose} className="text-paper-dim text-sm shrink-0">
             Close
           </button>
@@ -50,7 +50,7 @@ export default function ResetHistoryModal({
                     {formatDate(e.run_start)} to {formatDate(e.reset_at)}
                   </span>
                 </div>
-                {e.note && <p className="text-paper-dim text-xs mt-1">{e.note}</p>}
+                {e.note && <p className="text-paper-dim text-xs mt-1 break-words">{e.note}</p>}
               </li>
             ))}
           </ul>
