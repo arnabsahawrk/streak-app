@@ -7,6 +7,7 @@ const PUBLIC_PATHS = [
   "/manifest.webmanifest",
   "/sw.js",
   "/api/badge",
+  "/unsupported.html",
 ];
 
 export async function proxy(req: NextRequest) {

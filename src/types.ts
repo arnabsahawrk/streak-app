@@ -2,7 +2,7 @@ export interface Discipline {
   id: string;
   name: string;
   why_note: string;
-  start_date: string;
+  start_date: string | null;
   max_streak: number;
   archived: boolean;
   archived_at: string | null;

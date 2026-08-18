@@ -21,7 +21,9 @@ export default function ConfirmDialog({
         <h2 className="text-lg font-semibold mb-1">Reset this streak?</h2>
         <p className="text-paper-dim text-sm mb-4">
           Day {streak} ends here.{" "}
-          {streak > 0 ? "It's saved as your best if it's a new one." : ""}
+          {streak > 0 ? "It's saved as your best if it's a new one. " : ""}
+          It won&apos;t start counting again until you tap Start — whenever
+          that is.
         </p>
         <textarea
           value={note}

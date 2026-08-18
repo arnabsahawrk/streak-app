@@ -15,6 +15,8 @@ import ArchiveConfirmDialog from "./ArchiveConfirmDialog";
 import ResetHistoryModal from "./ResetHistoryModal";
 import ShareCardModal from "./ShareCardModal";
 
+const NEUTRAL = "#8A8578";
+
 export default function DisciplineCard({
   discipline,
   onChange,
@@ -27,23 +29,31 @@ export default function DisciplineCard({
   const [historyOpen, setHistoryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Paused = reset, not yet restarted. currentStreakDays(null) is 0, so
+  // every number below (days, bestSoFar) is already correct without extra
+  // branching - only the *display* needs to distinguish "day 0, just
+  // started today" from "not running at all."
+  const isPaused = discipline.start_date === null;
   const days = currentStreakDays(discipline.start_date);
-  const tier = getTier(days);
-  const upNext = nextTier(days);
+  const tier = isPaused ? null : getTier(days);
+  const upNext = isPaused ? null : nextTier(days);
   const bestSoFar = Math.max(discipline.max_streak, days);
-  const progress = upNext ? (days - tier.min) / (upNext.min - tier.min) : 1;
+  const ringColor = tier?.color ?? NEUTRAL;
+  const progress =
+    isPaused || !tier ? 0 : upNext ? (days - tier.min) / (upNext.min - tier.min) : 1;
 
   const justHitMilestone = useMemo(
-    () => TIERS.some((t) => t.min === days && days > 0),
-    [days]
+    () => !isPaused && TIERS.some((t) => t.min === days && days > 0),
+    [isPaused, days]
   );
 
   useEffect(() => {
-    if (!justHitMilestone) return;
+    if (!justHitMilestone || !tier) return;
     confetti({
       particleCount: 90,
       spread: 75,
@@ -75,6 +85,20 @@ export default function DisciplineCard({
     }
   }
 
+  async function handleStart() {
+    setStarting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/disciplines/${discipline.id}/start`, { method: "POST" });
+      if (!res.ok) throw new Error();
+      onChange();
+    } catch {
+      setError("Couldn't start — check your connection and try again.");
+    } finally {
+      setStarting(false);
+    }
+  }
+
   async function handleArchive() {
     setArchiving(true);
     setError(null);
@@ -99,7 +123,7 @@ export default function DisciplineCard({
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          background: `radial-gradient(circle at 50% 30%, ${tier.color}1F, transparent 65%)`,
+          background: `radial-gradient(circle at 50% 30%, ${ringColor}1F, transparent 65%)`,
         }}
         aria-hidden
       />
@@ -109,56 +133,77 @@ export default function DisciplineCard({
         <p className="text-paper-dim text-xs mt-1 break-words max-w-xs">{discipline.why_note}</p>
 
         <div className="mt-5">
-          <ProgressRing progress={progress} color={tier.color}>
-            <StreakCounter value={days} color={tier.color} />
+          <ProgressRing progress={progress} color={ringColor}>
+            {isPaused ? (
+              <div className="text-center">
+                <p className="font-mono text-6xl font-bold leading-none text-paper-dim">—</p>
+                <p className="text-paper-dim text-[10px] tracking-[0.25em] uppercase mt-2">
+                  Paused
+                </p>
+              </div>
+            ) : (
+              <StreakCounter value={days} color={ringColor} />
+            )}
           </ProgressRing>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={tier.name}
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.85 }}
-            transition={{ duration: 0.25 }}
-            className="mt-4 text-[11px] font-mono uppercase tracking-wide px-2.5 py-1 rounded-full"
-            style={{ color: tier.color, backgroundColor: `${tier.color}1A` }}
-          >
-            {tier.name}
-          </motion.span>
-        </AnimatePresence>
+        {tier && (
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={tier.name}
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.85 }}
+              transition={{ duration: 0.25 }}
+              className="mt-4 text-[11px] font-mono uppercase tracking-wide px-2.5 py-1 rounded-full"
+              style={{ color: tier.color, backgroundColor: `${tier.color}1A` }}
+            >
+              {tier.name}
+            </motion.span>
+          </AnimatePresence>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.p
-            key={tier.line}
+            key={isPaused ? "paused-line" : tier?.line}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.25 }}
             className="text-paper text-sm font-bold mt-2 max-w-xs"
           >
-            {tier.line}
+            {isPaused ? "No rush. Start again when you're ready." : tier?.line}
           </motion.p>
         </AnimatePresence>
 
         <p className="text-paper-dim text-xs mt-3">
           (Max streak: {bestSoFar} {dayWord(bestSoFar)})
-          {upNext && (
+          {!isPaused && upNext && (
             <> ({upNext.min - days} {dayWord(upNext.min - days)} to {upNext.name})</>
           )}
-          {!upNext && " (maxed the ladder)"}
+          {!isPaused && !upNext && " (maxed the ladder)"}
         </p>
 
-        <button
-          onClick={() => setConfirmOpen(true)}
-          className="mt-5 rounded-full bg-ash border border-ember-line px-6 py-2 text-sm font-medium hover:border-red-400/50 hover:text-red-400 transition-colors"
-        >
-          Reset
-        </button>
+        {isPaused ? (
+          <button
+            onClick={handleStart}
+            disabled={starting}
+            className="mt-5 rounded-full bg-flame text-ash px-7 py-2 text-sm font-semibold disabled:opacity-40 active:scale-95 transition-transform"
+          >
+            {starting ? "Starting…" : "Start"}
+          </button>
+        ) : (
+          <button
+            onClick={() => setConfirmOpen(true)}
+            className="mt-5 rounded-full bg-ash border border-ember-line px-6 py-2 text-sm font-medium hover:border-red-400/50 hover:text-red-400 transition-colors"
+          >
+            Reset
+          </button>
+        )}
 
         <div className="w-full border-t border-ember-line mt-5 pt-3 flex items-center justify-between">
           <span className="text-paper-dim text-[11px]">
-            started {formatDate(discipline.start_date)}
+            {isPaused ? "not started" : `started ${formatDate(discipline.start_date as string)}`}
           </span>
           <div className="flex items-center gap-3 text-paper-dim">
             {discipline.reset_count > 0 && (

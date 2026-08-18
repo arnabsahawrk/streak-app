@@ -27,6 +27,7 @@ alter table disciplines drop column if exists color;
 alter table disciplines add column if not exists public_token text not null default gen_random_uuid()::text;
 alter table disciplines add column if not exists archived_at timestamptz;
 alter table disciplines add column if not exists reset_count integer not null default 0;
+alter table disciplines alter column start_date drop not null;
 update disciplines set why_note = 'No reason given yet.' where why_note is null;
 alter table disciplines alter column why_note set not null;
 

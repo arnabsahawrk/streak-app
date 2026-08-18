@@ -19,9 +19,14 @@ export async function POST(
   const streak = currentStreakDays(discipline.start_date);
   const newMax = Math.max(discipline.max_streak, streak);
 
+  // Pause rather than restart: start_date goes to null, so nothing counts
+  // again until an explicit Start. currentStreakDays(null) is 0, so this
+  // is safe even if reset is somehow called on an already-paused
+  // discipline - streak is 0, newMax is unchanged, and no log entry (or
+  // reset_count bump) happens below since there's nothing to log.
   const [updated] = await sql`
     update disciplines
-    set start_date = now(), max_streak = ${newMax}
+    set start_date = null, max_streak = ${newMax}
     where id = ${id}
     returning *
   `;

@@ -1,7 +1,9 @@
 # Streak
 
 A personal, install-as-an-app streak tracker. Add a commitment, watch the
-day count climb, reset when you need to.
+day count climb, reset when you need to — resetting pauses it rather than
+immediately restarting, so there's no pressure to jump back in the same
+day; tap Start whenever you actually do.
 
 ## What's here
 
@@ -17,6 +19,16 @@ day count climb, reset when you need to.
 Streaks are never stored as a counter — `current streak = now − start_date`,
 computed on every read. Archived items freeze instead: the streak is
 computed as of `archived_at`, not live, so the number stops moving.
+
+**Paused is a real third state**, not just "day 0." `start_date` is
+nullable — `null` means reset-but-not-restarted. Resetting sets it to
+`null` (not `now()`); a separate Start action sets it to `now()`. Every
+place that reads `start_date` treats `null` as zero (`currentStreakDays`
+handles this centrally, in `src/lib/streak.ts`), which is also what stops
+archiving a paused discipline from corrupting `max_streak` — without that
+guard, `new Date(null)` resolves to the Unix epoch and "days since" math
+would explode. The card, the Share badge, and the sort order on the
+dashboard all show/treat paused distinctly from an active day-0 streak.
 
 ## Setup
 

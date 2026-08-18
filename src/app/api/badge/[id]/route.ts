@@ -18,17 +18,12 @@ export async function GET(
     return new Response("Not found", { status: 404 });
   }
 
+  const paused = d.start_date === null;
   const days = currentStreakDays(d.start_date);
   const tier = getTier(days);
+  const badgeData = { name: d.name, days, tierName: tier.name, tierColor: tier.color, line: tier.line };
 
-  const svg = renderBadgeSvg({
-    name: d.name,
-    days,
-    tierName: tier.name,
-    tierColor: tier.color,
-    line: tier.line,
-  });
-
+  const svg = renderBadgeSvg(badgeData, paused);
   return new Response(svg, {
     headers: { "Content-Type": "image/svg+xml", "Cache-Control": "no-store" },
   });
