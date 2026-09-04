@@ -1,23 +1,15 @@
-@import "tailwindcss";
-
-@theme {
-  --color-ash: #16140f;
-  --color-ash-raised: #1e1a14;
-  --color-ember-line: #2a241c;
-  --color-paper: #efe9de;
-  --color-paper-dim: #a69c8a;
-  --color-flame: #e8703a;
-  --font-sans: var(--font-plex-sans);
-  --font-mono: var(--font-plex-mono);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html {
   color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
-  background-color: var(--color-ash);
-  color: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
 }
 
 @media (prefers-reduced-motion: reduce) {
