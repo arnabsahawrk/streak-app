@@ -38,6 +38,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="stylesheet" href="/streak.css" />
+      </head>
       <body className="min-h-full bg-ash text-paper font-sans">{children}</body>
     </html>
   );
