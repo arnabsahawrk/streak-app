@@ -7,14 +7,16 @@ day; tap Start whenever you actually do.
 
 ## What's here
 
-- **Next.js 16** (App Router, TypeScript, Tailwind **v4**). Note: v4
-  requires Safari 16.4+ and won't render on older devices (e.g. an
-  iPhone 7, capped at iOS 15) — a known, accepted tradeoff here.
+- **Next.js 15.5** (App Router, TypeScript, Tailwind **v3**), configured to
+  support older Safari/iOS browsers including Safari on iOS 15 (iPhone 7).
 - **Neon Postgres** for storage, via `postgres` — two tables, no ORM
 - **Serwist** for the service worker / offline shell / installability
 - **Motion** for animation, **canvas-confetti** for milestone tier-ups
 - A passcode gate (middleware + a session-only cookie — it asks again every
   time the browser/app fully closes, by design)
+
+The app intentionally avoids Tailwind v4 and the Next.js 16 runtime baseline
+because those require newer Safari versions than an iPhone 7 can provide.
 
 Streaks are never stored as a counter — `current streak = now − start_date`,
 computed on every read. Archived items freeze instead: the streak is

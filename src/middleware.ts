@@ -10,7 +10,7 @@ const PUBLIC_PATHS = [
   "/unsupported.html",
 ];
 
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p)) || pathname.startsWith("/icons")) {
@@ -19,8 +19,6 @@ export async function proxy(req: NextRequest) {
 
   const passcode = process.env.APP_PASSCODE;
   if (!passcode) {
-    // No passcode configured yet — stay open rather than lock the owner
-    // out during local setup. Set APP_PASSCODE before deploying.
     return NextResponse.next();
   }
 
