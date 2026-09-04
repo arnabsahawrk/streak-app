@@ -1,21 +1,20 @@
-import { defaultCache } from "@serwist/next/worker";
 import { Serwist } from "serwist";
-import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
+import type { SerwistGlobalConfig } from "serwist";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
-    __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
+    __SW_MANIFEST: undefined;
   }
 }
-declare const self: WorkerGlobalScope &
-  SerwistGlobalConfig & { __SW_MANIFEST: (PrecacheEntry | string)[] | undefined };
+
+declare const self: WorkerGlobalScope & SerwistGlobalConfig;
 
 const serwist = new Serwist({
-  precacheEntries: self.__SW_MANIFEST,
+  precacheEntries: [],
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: defaultCache,
+  runtimeCaching: [],
 });
 
 serwist.addEventListeners();
