@@ -9,6 +9,7 @@ export interface Discipline {
   reset_count: number;
   created_at: string;
   public_token: string;
+  archive_reason: string | null;
 }
 
 export interface ResetEntry {

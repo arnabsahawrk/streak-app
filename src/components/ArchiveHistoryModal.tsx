@@ -38,6 +38,11 @@ export default function ArchiveHistoryModal({ onClose }: { onClose: () => void }
                   Best streak: {d.max_streak} {dayWord(d.max_streak)} · archived{" "}
                   {d.archived_at ? formatDate(d.archived_at) : "—"}
                 </p>
+                {d.archive_reason && (
+                  <p className="text-paper-dim text-xs mt-1.5 break-words">
+                    Reason: {d.archive_reason}
+                  </p>
+                )}
               </li>
             ))}
           </ul>

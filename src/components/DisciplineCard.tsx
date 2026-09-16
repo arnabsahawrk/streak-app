@@ -99,11 +99,15 @@ export default function DisciplineCard({
     }
   }
 
-  async function handleArchive() {
+  async function handleArchive(reason: string) {
     setArchiving(true);
     setError(null);
     try {
-      const res = await fetch(`/api/disciplines/${discipline.id}/archive`, { method: "POST" });
+      const res = await fetch(`/api/disciplines/${discipline.id}/archive`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
       if (!res.ok) throw new Error();
       setArchiveOpen(false);
       onChange();

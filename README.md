@@ -73,8 +73,11 @@ dashboard all show/treat paused distinctly from an active day-0 streak.
   ever reached (banked into `max_streak` at archive time) and moves the
   item to Archive history (button in the header, only visible once
   something's actually there) — there's no restore. Confirming requires
-  typing the discipline's name. Its Share link stops working the moment
-  it's archived.
+  both typing the discipline's name and giving a reason — the reason is
+  required (enforced in the confirm dialog and again in the API, not just
+  a DB constraint, since it only ever applies to archived rows) and shows
+  up alongside that item in Archive history. Its Share link stops working
+  the moment it's archived.
 - **History** (past resets, with the date range each run covered) only
   shows once a discipline has actually had a reset — the button stays
   hidden until then.

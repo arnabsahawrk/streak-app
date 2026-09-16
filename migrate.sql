@@ -38,4 +38,11 @@ update reset_log set run_start = reset_at - (streak_reached || ' days')::interva
   where run_start is null;
 alter table reset_log alter column run_start set not null;
 
+-- Only meaningful once a discipline is archived (same as archived_at), so
+-- it stays nullable at the DB level - "required" is enforced by the
+-- archive API and the confirm dialog, not a NOT NULL constraint, since a
+-- constraint here would also force a value onto every active discipline
+-- that was never archived at all.
+alter table disciplines add column if not exists archive_reason text;
+
 create index if not exists reset_log_discipline_id_idx on reset_log(discipline_id);
