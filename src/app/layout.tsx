@@ -1,9 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Sora, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Sora } from "next/font/google";
+// @ts-ignore Next.js processes this stylesheet import at build time.
 import "./globals.css";
 
-const sora = Sora({ variable: "--font-sora", subsets: ["latin"], weight: ["400", "500", "600", "700"] });
-const jet = JetBrains_Mono({ variable: "--font-jet", subsets: ["latin"], weight: ["400", "600", "700"] });
+const sora = Sora({
+  variable: "--font-sora",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+const jet = JetBrains_Mono({
+  variable: "--font-jet",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
 
 const SITE = "https://streakment.vercel.app";
 const DESCRIPTION =
@@ -18,9 +27,17 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   applicationName: "Streakment",
   keywords: [
-    "streak tracker", "habit tracker", "self discipline app", "commitment tracker",
-    "sobriety counter", "day counter", "quit habit tracker", "discipline streak",
-    "milestone tracker", "relapse tracker", "free habit app",
+    "streak tracker",
+    "habit tracker",
+    "self discipline app",
+    "commitment tracker",
+    "sobriety counter",
+    "day counter",
+    "quit habit tracker",
+    "discipline streak",
+    "milestone tracker",
+    "relapse tracker",
+    "free habit app",
   ],
   authors: [{ name: "Arnab Saha", url: "https://arnabsaha.vercel.app" }],
   creator: "Arnab Saha",
