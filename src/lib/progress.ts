@@ -9,6 +9,8 @@ export const PAUSED_LINE = "No rush. Begin again when you're ready.";
 export const SPRINT_DONE_LINE = "Done. I said I would, and I did.";
 
 export const SPRINT_PRESETS = [3, 7, 21, 30];
+/** Backwards-compatible name used by the challenge creation UI. */
+export const CHALLENGE_PRESETS = SPRINT_PRESETS;
 export const MAX_GOAL_DAYS = 365;
 
 export interface StreakView {
