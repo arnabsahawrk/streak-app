@@ -5,19 +5,16 @@ export interface Tier {
   min: number;
 }
 
-// Colors follow how metal actually changes color under heat and tempering
-// rather than an arbitrary rainbow: early tiers are the incandescence
-// sequence a blacksmith sees as metal heats up (dull red -> red -> orange
-// -> yellow -> near-white), matching the struggle in those tiers' lines.
-// Dedicated onward switches to real tempering colors (the oxide colors
-// steel takes on as it's held and cools into its hardened form: bronze,
-// then blue), matching how those lines shift from striving to settled
-// identity. Legend breaks from steel into gold — the finished, precious
-// result of the whole process.
+/** Colours follow how metal actually behaves under heat: the early tiers
+ *  run through the incandescence sequence a smith sees as iron warms
+ *  (dull red to orange to yellow to near-white), matching the struggle in
+ *  those lines. Dedicated onward switches to tempering colours - the
+ *  oxides steel takes on as it hardens - matching the shift from striving
+ *  to settled identity. Legend leaves steel for gold. */
 export const ZERO_STATE: Tier = {
-  name: "Day 0",
+  name: "Day Zero",
   line: "I can do this all day.",
-  color: "#8A8578", // unlit iron - no heat yet
+  color: "#8A8578",
   min: 0,
 };
 
@@ -31,18 +28,18 @@ export const TIERS: Tier[] = [
   { name: "Strong", line: "I am no longer who I used to be.", color: "#FDE047", min: 60 },
   { name: "Dedicated", line: "I live by my commitment.", color: "#B45309", min: 90 },
   { name: "Master", line: "Discipline has become part of me.", color: "#3B82F6", min: 180 },
-  { name: "Legend", line: "I became the person I promised to become.", color: "#D4AF37", min: 365 },
+  { name: "Legend", line: "I became the person I promised to become.", color: "#E0A82E", min: 365 },
 ];
 
 export function getTier(days: number): Tier {
   if (days <= 0) return ZERO_STATE;
   let current = TIERS[0];
-  for (const tier of TIERS) {
-    if (days >= tier.min) current = tier;
-  }
+  for (const t of TIERS) if (days >= t.min) current = t;
   return current;
 }
 
 export function nextTier(days: number): Tier | null {
-  return TIERS.find((tier) => tier.min > days) ?? null;
+  return TIERS.find((t) => t.min > days) ?? null;
 }
+
+export const LEGEND_MIN = 365;

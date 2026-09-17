@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 export default function ProgressRing({
   progress,
   color,
-  size = 208,
-  stroke = 7,
+  size = 210,
+  stroke = 8,
   children,
 }: {
   progress: number;
@@ -15,36 +15,25 @@ export default function ProgressRing({
   stroke?: number;
   children?: ReactNode;
 }) {
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - Math.min(1, Math.max(0, progress)));
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c * (1 - Math.min(1, Math.max(0, progress)));
 
   return (
-    <div
-      className="relative inline-flex items-center justify-center shrink-0"
-      style={{ width: size, height: size }}
-    >
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+    <div className="relative inline-flex shrink-0 items-center justify-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#2E2620" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          className="text-ember-line"
-          strokeWidth={stroke}
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
+          r={r}
           fill="none"
           stroke={color}
           strokeWidth={stroke}
-          strokeDasharray={circumference}
+          strokeDasharray={c}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 0.6s ease, stroke 0.3s ease" }}
+          style={{ transition: "stroke-dashoffset .7s ease, stroke .3s ease" }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">{children}</div>

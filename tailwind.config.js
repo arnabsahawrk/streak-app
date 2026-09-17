@@ -1,23 +1,23 @@
 /** @type {import('tailwindcss').Config} */
-const config = {
+module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
-        ash: "#16140f",
-        "ash-raised": "#1e1a14",
-        "ember-line": "#2a241c",
-        paper: "#efe9de",
-        "paper-dim": "#a69c8a",
-        flame: "#e8703a",
+        ash: "#14110E",
+        "ash-raised": "#1C1815",
+        "ash-sunk": "#0F0D0B",
+        "ember-line": "#2E2620",
+        paper: "#F2ECE3",
+        "paper-dim": "#A79C8C",
+        flame: "#FF6B35",
+        gold: "#E0A82E",
       },
       fontFamily: {
-        sans: ["var(--font-plex-sans)"],
-        mono: ["var(--font-plex-mono)"],
+        sans: ["var(--font-sora)", "system-ui", "sans-serif"],
+        mono: ["var(--font-jet)", "ui-monospace", "monospace"],
       },
     },
   },
   plugins: [],
 };
-
-module.exports = config;

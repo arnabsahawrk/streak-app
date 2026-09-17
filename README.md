@@ -1,113 +1,218 @@
-# Streak
+# STREAKMENT
 
-A personal, install-as-an-app streak tracker. Add a commitment, watch the
-day count climb, reset when you need to — resetting pauses it rather than
-immediately restarting, so there's no pressure to jump back in the same
-day; tap Start whenever you actually do.
+**Keep the commitment alive.**
 
-## What's here
+Streakment is a free, installable web app for tracking the promises you've
+made to yourself. You start a commitment, and it counts the days. When you
+break it, you say so, write down what happened, and begin again when you're
+ready — not the same minute, not under pressure.
 
-- **Next.js 15.5** (App Router, TypeScript, Tailwind **v3**), configured to
-  support older Safari/iOS browsers including Safari on iOS 15 (iPhone 7).
-- **Neon Postgres** for storage, via `postgres` — two tables, no ORM
-- **Serwist** for the service worker / offline shell / installability
-- **Motion** for animation, **canvas-confetti** for milestone tier-ups
-- A passcode gate (middleware + a session-only cookie — it asks again every
-  time the browser/app fully closes, by design)
+Live at **[streakment.vercel.app](https://streakment.vercel.app)**.
 
-The app intentionally avoids Tailwind v4 and the Next.js 16 runtime baseline
-because those require newer Safari versions than an iPhone 7 can provide.
+---
 
-Scrollbars are hidden app-wide (plain CSS in `globals.css`, plus a
-`.no-scrollbar` class on scrollable panels) — scrolling by wheel, touch and
-keyboard all still work, only the bar is gone.
+## What it does
 
-Streaks are never stored as a counter — `current streak = now − start_date`,
-computed on every read. Archived items freeze instead: the streak is
-computed as of `archived_at`, not live, so the number stops moving.
+### Two ways to hold a commitment
 
-**Paused is a real third state**, not just "day 0." `start_date` is
-nullable — `null` means reset-but-not-restarted. Resetting sets it to
-`null` (not `now()`); a separate Start action sets it to `now()`. Every
-place that reads `start_date` treats `null` as zero (`currentStreakDays`
-handles this centrally, in `src/lib/streak.ts`), which is also what stops
-archiving a paused discipline from corrupting `max_streak` — without that
-guard, `new Date(null)` resolves to the Unix epoch and "days since" math
-would explode. The card, the Share badge, and the sort order on the
-dashboard all show/treat paused distinctly from an active day-0 streak.
+**Ascent** — open-ended, no finish line. The day count climbs through ten
+milestones, each with its own name, colour and line:
 
-## Setup
+| Days | Milestone | What it says |
+|---:|---|---|
+| 0 | Day Zero | I can do this all day. |
+| 1–2 | Begin | I decided to change. |
+| 3–6 | Commit | I chose the better path. |
+| 7–14 | Control | I am learning to control myself. |
+| 15–20 | Discipline | I am building a new me. |
+| 21–29 | Consistent | This is becoming who I am. |
+| 30–59 | Thrive | My old habits are losing their hold. |
+| 60–89 | Strong | I am no longer who I used to be. |
+| 90–179 | Dedicated | I live by my commitment. |
+| 180–364 | Master | Discipline has become part of me. |
+| 365+ | Legend | I became the person I promised to become. |
 
-1. **Install deps**
-   ```
-   npm install
-   ```
+The colours aren't arbitrary. They follow how metal actually behaves under
+heat: the early milestones run through the incandescence sequence a smith
+sees as iron warms — dull red, red, orange, yellow, near-white — matching
+the struggle in those lines. From Dedicated onward they switch to tempering
+colours, the oxides steel takes on as it hardens, matching the shift from
+striving to settled identity. Legend leaves steel for gold.
 
-2. **Database.** Create a free Neon project (directly at
-   [neon.tech](https://neon.tech), or via the Neon integration in the
-   Vercel Marketplace). Run **`migrate.sql`** against it once — paste it
-   into Neon's SQL Editor and run. This one file is safe to re-run any
-   number of times against a database at any previous version of this
-   schema; it only applies what's missing.
+**Sprint** — fixed length, 1 to 365 days. Pick three days to break a loop,
+or thirty to prove something. It completes when you reach the number, turns
+gold, and offers to finish and archive. A Sprint never shows a "best run" —
+you either got there or you didn't, and a personal best is noise.
 
-3. **Environment variables.** Copy `.env.example` to `.env.local`, fill in
-   `DATABASE_URL` and `APP_PASSCODE`. Add the same two in Vercel →
-   Project → Settings → Environment Variables before deploying.
+### Resetting doesn't restart you
 
-4. **Icons.** Already in `public/icons/` — regenerate with
-   `python3 scripts/make_icons.py` if you want a different look (needs
-   `pip install pillow numpy`).
+When you reset, the streak **pauses** instead of immediately counting again.
+Nothing runs until you tap **Begin**. That's deliberate: a slip on Tuesday
+shouldn't force you back on the clock the same day, and pretending otherwise
+is how people quit entirely.
 
-5. **Run it:** `npm run dev`, visit `localhost:3000`.
+Your best run is banked before the reset, so breaking never erases what you
+already did.
 
-6. **Deploy.** Push to GitHub (keep the repo **private**), import in
-   Vercel, set the two env vars there too, deploy.
+### The journal
 
-## Notes
+Every commitment has its own private thread. Write how it's going, what
+tempted you, what you noticed about yourself. Each note is stamped with the
+date and time you wrote it, so reading back tells you *when* you were
+struggling, not just that you were.
 
-- **Tiers** live in `src/lib/tiers.ts` — names, motivating lines, colors,
-  and day thresholds are all just data. Colors follow real metal
-  temperature/tempering colors rather than an arbitrary rainbow (see the
-  comment there for the full reasoning). Day 0 is its own state
-  (`ZERO_STATE`), separate from the "Begin" tier proper, so the tier badge
-  and the "days to next tier" line never contradict each other.
-- **Why is required.** Every commitment needs a reason; it's shown in full
-  on the card, never truncated — the card's height simply grows to fit it.
-- **Two shapes of commitment**, decided when you create one and stored in
-  `goal_days`:
-  - `null` — the open-ended tier ladder (Begin … Legend). This is what
-    every commitment created before challenges existed gets automatically,
-    so adding the column changed nothing about anything already running.
-  - `N` — a fixed N-day challenge (1–365, enforced by a CHECK constraint
-    and again in the API). It *completes* at N days: the card turns gold,
-    the ring fills, and the Reset button becomes "Finish and archive".
-  `src/lib/progress.ts` is the single place that turns a row into what the
-  UI draws, so the card, the shared badge, and the path view can't drift
-  apart. It reads `goal_days` with `?? null`, which also catches
-  `undefined` — so a database that predates the column degrades to ladder
-  behaviour instead of throwing.
-- **The path** (route icon on each card) shows the whole journey: every
-  tier, its day threshold, and its line, with everything you've passed lit
-  in its tier colour, your current position marked, and what's ahead dimmed
-  but still readable. Challenges show day-by-day steps instead.
-- **Archiving is permanent.** It freezes the *best* streak that discipline
-  ever reached (banked into `max_streak` at archive time) and moves the
-  item to Archive history (button in the header, only visible once
-  something's actually there) — there's no restore. Confirming requires
-  both typing the discipline's name and giving a closing note — the note is
-  required (enforced in the confirm dialog and again in the API, not just
-  a DB constraint, since it only ever applies to archived rows) and shows
-  up alongside that item in Archive history. Its Share link stops working
-  the moment it's archived.
-- **History** (past resets, with the date range each run covered) only
-  shows once a discipline has actually had a reset — the button stays
-  hidden until then.
-- **The Share link** (`/api/badge/[id]?token=...`) is read-only by design —
-  it always returns a live SVG snapshot of that discipline's current state,
-  nothing else reachable from it, and it 404s once that discipline is
-  archived. Paste it as an image anywhere (Notion included) and it redraws
-  itself from the database on every fetch. Anyone with the link can view
-  that one discipline's streak while it's active — it doesn't check your
-  passcode — so don't post it publicly.
-- The Notion commitment link in the header is hardcoded in
-  `src/app/page.tsx`.
+### The heatmap
+
+Every day since the commitment started, as a monthly grid: days you held
+(in the milestone colour), the days you broke (red), and the stretches when
+nothing was running. It only ever shows months from the one you began in —
+a commitment started in September never renders an empty May.
+
+Nothing extra is stored to make this work. Every run is already bounded by
+its start and its reset, so the whole record is reconstructed from data the
+app keeps anyway.
+
+### The roadmap
+
+The full climb as a rope of lit and unlit stations: everything you've passed
+burns in its colour, where you stand now pulses, and what's ahead stays
+readable but cold. Seeing where this goes is the point.
+
+### Milestone emails
+
+When you cross a milestone or finish a Sprint, you get an email. This is
+checked once a day — the app calculates streaks when you open it, so nothing
+happens at midnight by itself, and the free hosting tier runs scheduled jobs
+once daily. You get the email on the day you cross, not the minute.
+
+Every send is recorded, and the record has a uniqueness guarantee, so a
+retry or an overlapping run can never send you the same congratulation
+twice.
+
+### AI, where it earns its place
+
+- **Polish** — tidies spelling and grammar in anything you write, keeping
+  your voice and meaning. Runs only when you ask.
+- **Pattern insight** — reads your own journal notes and reset history and
+  points out when and why the slips cluster. Grounded only in what you
+  wrote. It describes patterns; it doesn't diagnose, and it isn't a
+  substitute for talking to someone.
+
+### Share a live streak
+
+One link that redraws itself from current data every time it loads, so it
+always shows today's real number. Copy it as a plain link, Markdown, or an
+HTML tag — it works in a Notion page, a README, a blog, a dashboard,
+anywhere an image does. It needs no sign-in, and stops working the moment
+you archive that streak.
+
+### Your archive
+
+Finishing a commitment doesn't delete it. The archive keeps what it was, why
+you started, when, how far it got, how many times it broke, your closing
+note, and the whole journal and history behind it.
+
+### Everything else
+
+- **Google sign-in.** Each account's streaks are entirely their own.
+- **Optional passcode** on top of sign-in, for a shared or borrowed device.
+- **Your commitment doc** — a link to wherever you keep the promise you're
+  holding yourself to (Notion, Google Docs, anything), one tap away in the
+  menu.
+- **Profile** — your picture and email come from Google; your display name
+  and date of birth are yours to set.
+- **Installable and offline-capable**, with scrollbars hidden and text
+  justified throughout.
+- **Built for old devices too** — pinned to Next.js 15 and Tailwind 3 and
+  compiled for Safari 12, so it works on phones a newer stack drops.
+
+---
+
+## Running it yourself
+
+### 1. Database
+
+Create a free [Neon](https://neon.tech) project and run **`schema.sql`**
+once in its SQL Editor. Keep the pooled connection string.
+
+### 2. Google sign-in
+
+In the [Google Cloud Console](https://console.cloud.google.com): new project
+→ OAuth consent screen (External; add yourself as a test user) → Credentials
+→ **OAuth client ID**, type *Web application*.
+
+Authorised redirect URIs:
+
+```
+https://YOUR-APP.vercel.app/api/auth/callback/google
+http://localhost:3000/api/auth/callback/google
+```
+
+### 3. Email
+
+Create a free [Brevo](https://brevo.com) account, validate your sender
+address, and make an API key under *SMTP & API*. Brevo is used rather than
+Resend because it sends from a validated address without requiring you to
+own and configure a domain, and its free tier (300/day) doesn't expire.
+
+### 4. AI
+
+Get a key at [console.groq.com/keys](https://console.groq.com/keys). Free,
+no card, rate-limited well above personal use.
+
+### 5. Environment
+
+Copy `.env.example` to `.env.local` and fill it in. Generate the auth secret
+with `openssl rand -base64 32`. Set the same variables in Vercel → Settings
+→ Environment Variables.
+
+### 6. Run
+
+```bash
+npm install
+npm run dev
+```
+
+### 7. Deploy
+
+Push to GitHub, import in Vercel, add the environment variables, deploy.
+`vercel.json` registers the daily 03:00 UTC cron automatically.
+
+---
+
+## How it's built
+
+```
+src/
+  auth.ts              Better Auth (Google), owns user/session/account tables
+  middleware.ts        Cheap edge cookie check; real validation is server-side
+  lib/
+    session.ts         Session + settings; the actual security boundary
+    streak.ts          Day maths and display caps
+    tiers.ts           The ten milestones
+    progress.ts        One view model shared by card, badge and roadmap
+    heatmap.ts         Rebuilds every day from run boundaries
+    badge.ts           The live share image
+    email.ts  ai.ts    Brevo and Groq
+    limits.ts          Text ceilings, mirrored by database constraints
+  components/          Card, roadmap, heatmap, journal, dialogs, sheets
+  app/api/             Per-user scoped routes; cron/daily sends milestones
+```
+
+Three ideas hold the whole thing together:
+
+1. **Streaks are never stored as a number.** The count is always
+   `now − start_date`, computed on read. There's no counter to drift, and
+   nothing needs a background job just to make the numbers move.
+2. **`start_date = null` means paused.** That single representation gives
+   the pause-after-reset behaviour for free, and it's treated as zero
+   everywhere so archiving a paused streak can't write a nonsense record.
+3. **One view model.** `progress.ts` turns a row into everything the UI
+   draws, so the card, the share image and the roadmap can't disagree.
+
+Limits are enforced in the database *and* the API, so a bug in one layer
+can't bypass the other.
+
+---
+
+A project by [Arnab Saha](https://arnabsaha.vercel.app).

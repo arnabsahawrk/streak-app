@@ -1,40 +1,28 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { hashPasscode, SESSION_COOKIE } from "@/lib/auth";
 
-const PUBLIC_PATHS = [
-  "/login",
-  "/api/login",
-  "/manifest.webmanifest",
-  "/sw.js",
-  "/api/badge",
-  "/unsupported.html",
-];
+/** Cheap edge-side gate: redirects anyone without a session cookie to the
+ *  sign-in page so protected pages never flash. This is not the security
+ *  boundary - every page and API route revalidates the session on the
+ *  server, where the cookie can actually be verified. */
+const PUBLIC = ["/signin", "/api/auth", "/api/badge", "/api/cron", "/manifest.webmanifest", "/robots.txt", "/icons"];
 
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  if (PUBLIC.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p)) || pathname.startsWith("/icons")) {
-    return NextResponse.next();
-  }
+  const hasSession =
+    req.cookies.has("better-auth.session_token") ||
+    req.cookies.has("__Secure-better-auth.session_token");
 
-  const passcode = process.env.APP_PASSCODE;
-  if (!passcode) {
-    return NextResponse.next();
-  }
-
-  const expected = await hashPasscode(passcode);
-  const cookie = req.cookies.get(SESSION_COOKIE)?.value;
-
-  if (cookie !== expected) {
+  if (!hasSession) {
     const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("next", pathname);
+    url.pathname = "/signin";
+    url.search = "";
     return NextResponse.redirect(url);
   }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icons).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

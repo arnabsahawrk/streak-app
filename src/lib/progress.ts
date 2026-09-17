@@ -1,103 +1,102 @@
-import { currentStreakDays } from "@/lib/streak";
-import { getTier, nextTier, type Tier } from "@/lib/tiers";
-import { dayWord } from "@/lib/format";
+import { currentStreakDays, SPRINT_CAP, ASCENT_CAP, displayDays } from "./streak";
+import { getTier, nextTier, LEGEND_MIN, type Tier } from "./tiers";
+import { dayWord } from "./format";
 
 export const NEUTRAL = "#8A8578";
-export const GOLD = "#D4AF37";
+export const GOLD = "#E0A82E";
 
-export const PAUSED_LINE = "No rush. Start again when you're ready.";
-export const COMPLETE_LINE = "Done. I said I would, and I did.";
+export const PAUSED_LINE = "No rush. Begin again when you're ready.";
+export const SPRINT_DONE_LINE = "Done. I said I would, and I did.";
 
-/** Challenge lengths offered as one-tap presets when creating a commitment. */
-export const CHALLENGE_PRESETS = [3, 7, 21, 30];
+export const SPRINT_PRESETS = [3, 7, 21, 30];
 export const MAX_GOAL_DAYS = 365;
 
 export interface StreakView {
   isPaused: boolean;
-  isChallenge: boolean;
-  isComplete: boolean;
+  isSprint: boolean;
+  /** Sprint reached its goal, or an Ascent reached Legend. Either way the
+   *  streak has arrived somewhere worth stopping at. */
+  isFinished: boolean;
   days: number;
   goalDays: number | null;
-  /** 0..1, drives the ring. */
+  /** Capped string for display: "365+" / "999+" past the ceiling. */
+  daysLabel: string;
   progress: number;
   color: string;
-  /** null while paused, or on a challenge (the ladder doesn't apply there). */
   tier: Tier | null;
   upNext: Tier | null;
   line: string;
-  /** Small-caps caption under the big number. */
   caption: string;
-  /** Pill above the line; null means render no pill. */
   pill: string | null;
+  /** Best streak is only meaningful on an Ascent. A Sprint either reaches
+   *  its goal or it doesn't - a personal best is noise there. */
+  showsBest: boolean;
 }
 
-/**
- * Normalises a discipline into everything the UI needs to draw it.
- *
- * Two shapes of commitment share this:
- *   - goal_days === null  -> the open-ended tier ladder (Begin ... Legend)
- *   - goal_days === N     -> a fixed N-day challenge that completes at N
- *
- * `goal_days` is read with `?? null`, which also catches `undefined`. That
- * matters: if the column hasn't been added to the database yet, every row
- * comes back without the field and every commitment simply behaves as a
- * ladder commitment — exactly how it behaved before challenges existed —
- * instead of throwing. A missing migration degrades, it doesn't break.
- */
-export function viewOf(d: {
+/** Single source of truth for how a streak renders. The card, the share
+ *  image, the roadmap and the archive detail all read from here so they
+ *  cannot drift apart. */
+export function viewOf(s: {
   start_date: string | null;
+  kind?: string | null;
   goal_days?: number | null;
 }): StreakView {
-  const isPaused = d.start_date === null;
-  const days = currentStreakDays(d.start_date);
-  const goalDays = d.goal_days ?? null;
-  const isChallenge = goalDays !== null && goalDays > 0;
-  const isComplete = isChallenge && !isPaused && days >= (goalDays as number);
+  const isSprint = (s.kind ?? "ascent") === "sprint" && !!s.goal_days;
+  const goalDays = isSprint ? (s.goal_days as number) : null;
+  const isPaused = s.start_date === null;
+  const days = currentStreakDays(s.start_date);
+  const cap = isSprint ? SPRINT_CAP : ASCENT_CAP;
 
   if (isPaused) {
     return {
       isPaused: true,
-      isChallenge,
-      isComplete: false,
+      isSprint,
+      isFinished: false,
       days: 0,
       goalDays,
+      daysLabel: "0",
       progress: 0,
       color: NEUTRAL,
       tier: null,
       upNext: null,
       line: PAUSED_LINE,
       caption: "PAUSED",
-      pill: isChallenge ? `${goalDays}-DAY CHALLENGE` : null,
+      pill: isSprint ? `${goalDays}-DAY SPRINT` : null,
+      showsBest: !isSprint,
     };
   }
 
   const tier = getTier(days);
 
-  if (isChallenge) {
+  if (isSprint) {
     const goal = goalDays as number;
+    const done = days >= goal;
     return {
       isPaused: false,
-      isChallenge: true,
-      isComplete,
+      isSprint: true,
+      isFinished: done,
       days,
       goalDays: goal,
+      daysLabel: displayDays(days, cap),
       progress: Math.min(1, days / goal),
-      color: isComplete ? GOLD : tier.color,
+      color: done ? GOLD : tier.color,
       tier: null,
       upNext: null,
-      line: isComplete ? COMPLETE_LINE : tier.line,
-      caption: isComplete ? "COMPLETE" : `OF ${goal} ${dayWord(goal).toUpperCase()}`,
-      pill: `${goal}-DAY CHALLENGE`,
+      line: done ? SPRINT_DONE_LINE : tier.line,
+      caption: done ? "COMPLETE" : `OF ${goal} ${dayWord(goal).toUpperCase()}`,
+      pill: `${goal}-DAY SPRINT`,
+      showsBest: false,
     };
   }
 
   const upNext = nextTier(days);
   return {
     isPaused: false,
-    isChallenge: false,
-    isComplete: false,
+    isSprint: false,
+    isFinished: days >= LEGEND_MIN,
     days,
     goalDays: null,
+    daysLabel: displayDays(days, cap),
     progress: upNext ? (days - tier.min) / (upNext.min - tier.min) : 1,
     color: tier.color,
     tier,
@@ -105,5 +104,6 @@ export function viewOf(d: {
     line: tier.line,
     caption: dayWord(days).toUpperCase(),
     pill: tier.name,
+    showsBest: true,
   };
 }

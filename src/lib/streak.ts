@@ -1,16 +1,15 @@
-const DAY_MS = 1000 * 60 * 60 * 24;
+const DAY_MS = 86_400_000;
 
-// The streak is always derived from start_date, never stored as a counter.
-// That means there's nothing to keep in sync and no cron job required.
-// Pass `asOf` to compute the streak as it stood at a fixed moment (e.g. the
-// moment something was archived) instead of live, right now.
-//
-// start_date is null while a discipline is paused (reset, but not yet
-// restarted) - treat that as zero everywhere rather than letting callers
-// each reinvent the null check. This matters beyond display: it's what
-// keeps archiving a paused discipline from corrupting max_streak (without
-// this, new Date(null) resolves to the Unix epoch, and the "days since"
-// math would produce a streak of tens of thousands of days).
+/** Display caps. The count keeps running until archived, but stops
+ *  rendering as an ever-growing number past these. */
+export const SPRINT_CAP = 365;
+export const ASCENT_CAP = 999;
+
+/** Streaks are derived from start_date, never stored as a counter, so
+ *  nothing needs a background job just to make the numbers move.
+ *  `null` start_date means paused - treated as zero everywhere, which is
+ *  also what stops archiving a paused streak from writing a nonsense
+ *  max_streak (new Date(null) is the Unix epoch). */
 export function currentStreakDays(
   startDate: string | Date | null,
   asOf: string | Date = new Date()
@@ -18,5 +17,11 @@ export function currentStreakDays(
   if (!startDate) return 0;
   const start = new Date(startDate).getTime();
   const end = new Date(asOf).getTime();
+  if (Number.isNaN(start) || Number.isNaN(end)) return 0;
   return Math.max(0, Math.floor((end - start) / DAY_MS));
+}
+
+/** "365+" / "999+" past the cap, plain number below it. */
+export function displayDays(days: number, cap: number): string {
+  return days > cap ? `${cap}+` : String(days);
 }

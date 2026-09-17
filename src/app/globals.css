@@ -12,18 +12,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Hide scrollbars everywhere while keeping scrolling itself fully working:
-   the element still scrolls by wheel, touch, and keyboard - only the visual
-   bar is gone. `scrollbar-width` covers Firefox, `-ms-overflow-style` covers
-   old Edge/IE, and the `::-webkit-scrollbar` rule covers Safari and Chrome
-   (including the older iOS Safari this build deliberately supports). */
+/* Scrollbars hidden everywhere, scrolling untouched: wheel, touch and
+   keyboard all still work. scrollbar-width covers Firefox,
+   -ms-overflow-style old Edge, ::-webkit-scrollbar Safari and Chrome
+   including the older iOS Safari this build supports. */
 html,
 body,
 .no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 .no-scrollbar::-webkit-scrollbar {
@@ -32,10 +30,29 @@ body::-webkit-scrollbar,
   height: 0;
 }
 
+/* Long-form prose justifies; hyphenation stops justification from
+   opening rivers of whitespace on narrow phone screens. */
+.prose-justify {
+  text-align: justify;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+@keyframes sm-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sm-rise { animation: sm-rise 0.35s ease-out both; }
+
+@keyframes sm-flicker {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.82; }
+}
+.sm-flicker { animation: sm-flicker 2.4s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
