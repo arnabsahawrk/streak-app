@@ -181,7 +181,7 @@ export default function PathModal({
       <div className="w-full sm:max-w-sm bg-ash-raised border border-ember-line rounded-t-2xl sm:rounded-2xl p-6 max-h-[85vh] overflow-y-auto no-scrollbar">
         <div className="flex items-start justify-between gap-3 mb-1">
           <h2 className="text-lg font-semibold break-words">
-            {v.isChallenge ? "Challenge" : "The path"}
+            {v.isSprint ? "Challenge" : "The path"}
           </h2>
           <button onClick={onClose} className="text-paper-dim text-sm shrink-0">
             Close
@@ -189,11 +189,11 @@ export default function PathModal({
         </div>
         <p className="text-paper-dim text-xs mb-5 break-words">{discipline.name}</p>
 
-        {v.isChallenge && v.goalDays ? (
+        {v.isSprint && v.goalDays ? (
           <ChallengePath
             days={v.days}
             goal={v.goalDays}
-            complete={v.isComplete}
+            complete={v.isFinished}
             paused={v.isPaused}
           />
         ) : (
