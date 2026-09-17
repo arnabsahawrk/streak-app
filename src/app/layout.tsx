@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Sora } from "next/font/google";
-// @ts-ignore Next.js processes this stylesheet import at build time.
+
 import "./globals.css";
 
 const sora = Sora({
