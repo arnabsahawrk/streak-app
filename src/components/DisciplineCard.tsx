@@ -42,7 +42,7 @@ export default function DisciplineCard({
   // The day a finished challenge was actually met, derived rather than
   // stored - start_date is the only thing that moves, so this can't drift.
   const metOn =
-    v.isComplete && discipline.start_date && v.goalDays
+    v.isFinished && discipline.start_date && v.goalDays
       ? new Date(new Date(discipline.start_date).getTime() + v.goalDays * DAY_MS)
       : null;
 
@@ -51,15 +51,15 @@ export default function DisciplineCard({
   // this" flag to keep in sync.
   const justHitMilestone = useMemo(() => {
     if (v.isPaused || v.days <= 0) return false;
-    if (v.isChallenge) return v.days === v.goalDays;
+    if (v.isSprint) return v.days === v.goalDays;
     return TIERS.some((t) => t.min === v.days);
-  }, [v.isPaused, v.isChallenge, v.days, v.goalDays]);
+  }, [v.isPaused, v.isSprint, v.days, v.goalDays]);
 
   useEffect(() => {
     if (!justHitMilestone) return;
     confetti({
-      particleCount: v.isComplete ? 140 : 90,
-      spread: v.isComplete ? 95 : 75,
+      particleCount: v.isFinished ? 140 : 90,
+      spread: v.isFinished ? 95 : 75,
       origin: { y: 0.6 },
       colors: [v.color, "#EFE9DE"],
     });
@@ -126,7 +126,7 @@ export default function DisciplineCard({
       animate={pulse ? { scale: [1, 1.02, 1] } : { scale: 1 }}
       transition={{ duration: 0.7, ease: "easeOut" }}
       className="relative overflow-hidden rounded-2xl bg-ash-raised border border-ember-line px-6 pt-6 pb-5"
-      style={v.isComplete ? { borderColor: `${GOLD}66` } : undefined}
+      style={v.isFinished ? { borderColor: `${GOLD}66` } : undefined}
     >
       <div
         className="pointer-events-none absolute inset-0"
@@ -186,23 +186,23 @@ export default function DisciplineCard({
 
         <p className="text-paper-dim text-xs mt-3">
           (Max streak: {bestSoFar} {dayWord(bestSoFar)})
-          {!v.isPaused && v.isChallenge && v.goalDays && !v.isComplete && (
+          {!v.isPaused && v.isSprint && v.goalDays && !v.isFinished && (
             <>
               {" "}
               ({v.goalDays - v.days} {dayWord(v.goalDays - v.days)} to go)
             </>
           )}
-          {v.isComplete && metOn && <> (met {formatDate(metOn)})</>}
-          {!v.isPaused && !v.isChallenge && v.upNext && (
+          {v.isFinished && metOn && <> (met {formatDate(metOn)})</>}
+          {!v.isPaused && !v.isSprint && v.upNext && (
             <>
               {" "}
               ({v.upNext.min - v.days} {dayWord(v.upNext.min - v.days)} to {v.upNext.name})
             </>
           )}
-          {!v.isPaused && !v.isChallenge && !v.upNext && " (maxed the ladder)"}
+          {!v.isPaused && !v.isSprint && !v.upNext && " (maxed the ladder)"}
         </p>
 
-        {v.isComplete && (
+        {v.isFinished && (
           <button
             onClick={() => setArchiveOpen(true)}
             className="mt-5 rounded-full px-7 py-2 text-sm font-semibold text-ash active:scale-95 transition-transform"
@@ -212,7 +212,7 @@ export default function DisciplineCard({
           </button>
         )}
 
-        {!v.isComplete &&
+        {!v.isFinished &&
           (v.isPaused ? (
             <button
               onClick={handleStart}
@@ -237,8 +237,8 @@ export default function DisciplineCard({
           <div className="flex items-center gap-3 text-paper-dim">
             <button
               onClick={() => setPathOpen(true)}
-              aria-label={v.isChallenge ? "Challenge progress" : "The path"}
-              title={v.isChallenge ? "Challenge progress" : "The path"}
+              aria-label={v.isSprint ? "Challenge progress" : "The path"}
+              title={v.isSprint ? "Challenge progress" : "The path"}
               className="hover:text-paper transition-colors"
             >
               <Route size={15} strokeWidth={2} />
