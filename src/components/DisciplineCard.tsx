@@ -39,16 +39,11 @@ export default function DisciplineCard({
   const v = viewOf(discipline);
   const bestSoFar = Math.max(discipline.max_streak, v.days);
 
-  // The day a finished challenge was actually met, derived rather than
-  // stored - start_date is the only thing that moves, so this can't drift.
   const metOn =
     v.isFinished && discipline.start_date && v.goalDays
       ? new Date(new Date(discipline.start_date).getTime() + v.goalDays * DAY_MS)
       : null;
 
-  // Stateless celebration: today either lands exactly on a milestone (or on
-  // the challenge goal) or it doesn't, so there's no "have I already fired
-  // this" flag to keep in sync.
   const justHitMilestone = useMemo(() => {
     if (v.isPaused || v.days <= 0) return false;
     if (v.isSprint) return v.days === v.goalDays;
@@ -150,7 +145,7 @@ export default function DisciplineCard({
                 </p>
               </div>
             ) : (
-              <StreakCounter value={v.days} color={v.color} caption={v.caption} />
+              <StreakCounter value={v.days} label={v.daysLabel} color={v.color} caption={v.caption} />
             )}
           </ProgressRing>
         </div>
