@@ -18,6 +18,10 @@ day; tap Start whenever you actually do.
 The app intentionally avoids Tailwind v4 and the Next.js 16 runtime baseline
 because those require newer Safari versions than an iPhone 7 can provide.
 
+Scrollbars are hidden app-wide (plain CSS in `globals.css`, plus a
+`.no-scrollbar` class on scrollable panels) — scrolling by wheel, touch and
+keyboard all still work, only the bar is gone.
+
 Streaks are never stored as a counter — `current streak = now − start_date`,
 computed on every read. Archived items freeze instead: the streak is
 computed as of `archived_at`, not live, so the number stops moving.
@@ -69,11 +73,28 @@ dashboard all show/treat paused distinctly from an active day-0 streak.
   and the "days to next tier" line never contradict each other.
 - **Why is required.** Every commitment needs a reason; it's shown in full
   on the card, never truncated — the card's height simply grows to fit it.
+- **Two shapes of commitment**, decided when you create one and stored in
+  `goal_days`:
+  - `null` — the open-ended tier ladder (Begin … Legend). This is what
+    every commitment created before challenges existed gets automatically,
+    so adding the column changed nothing about anything already running.
+  - `N` — a fixed N-day challenge (1–365, enforced by a CHECK constraint
+    and again in the API). It *completes* at N days: the card turns gold,
+    the ring fills, and the Reset button becomes "Finish and archive".
+  `src/lib/progress.ts` is the single place that turns a row into what the
+  UI draws, so the card, the shared badge, and the path view can't drift
+  apart. It reads `goal_days` with `?? null`, which also catches
+  `undefined` — so a database that predates the column degrades to ladder
+  behaviour instead of throwing.
+- **The path** (route icon on each card) shows the whole journey: every
+  tier, its day threshold, and its line, with everything you've passed lit
+  in its tier colour, your current position marked, and what's ahead dimmed
+  but still readable. Challenges show day-by-day steps instead.
 - **Archiving is permanent.** It freezes the *best* streak that discipline
   ever reached (banked into `max_streak` at archive time) and moves the
   item to Archive history (button in the header, only visible once
   something's actually there) — there's no restore. Confirming requires
-  both typing the discipline's name and giving a reason — the reason is
+  both typing the discipline's name and giving a closing note — the note is
   required (enforced in the confirm dialog and again in the API, not just
   a DB constraint, since it only ever applies to archived rows) and shows
   up alongside that item in Archive history. Its Share link stops working

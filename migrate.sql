@@ -45,4 +45,14 @@ alter table reset_log alter column run_start set not null;
 -- that was never archived at all.
 alter table disciplines add column if not exists archive_reason text;
 
+-- Fixed-length challenges ("3 day challenge") vs the open-ended tier
+-- ladder. NULL means the ladder, which is what every row that existed
+-- before this column was added gets automatically - so adding this
+-- changes nothing about any commitment already running. A value of N
+-- means the commitment completes when it reaches N days.
+alter table disciplines add column if not exists goal_days integer;
+alter table disciplines drop constraint if exists disciplines_goal_days_sane;
+alter table disciplines add constraint disciplines_goal_days_sane
+  check (goal_days is null or (goal_days >= 1 and goal_days <= 365));
+
 create index if not exists reset_log_discipline_id_idx on reset_log(discipline_id);

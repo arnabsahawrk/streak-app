@@ -1,6 +1,5 @@
 import sql from "@/lib/db";
-import { currentStreakDays } from "@/lib/streak";
-import { getTier } from "@/lib/tiers";
+import { viewOf } from "@/lib/progress";
 import { renderBadgeSvg } from "@/lib/badge";
 
 // Read-only by design: this URL only ever returns a live SVG snapshot of
@@ -18,12 +17,18 @@ export async function GET(
     return new Response("Not found", { status: 404 });
   }
 
-  const paused = d.start_date === null;
-  const days = currentStreakDays(d.start_date);
-  const tier = getTier(days);
-  const badgeData = { name: d.name, days, tierName: tier.name, tierColor: tier.color, line: tier.line };
-
-  const svg = renderBadgeSvg(badgeData, paused);
+  const v = viewOf({ start_date: d.start_date, goal_days: d.goal_days });
+  const svg = renderBadgeSvg(
+    {
+      name: d.name,
+      days: v.days,
+      caption: v.caption,
+      pill: v.pill ?? "",
+      color: v.color,
+      line: v.line,
+    },
+    v.isPaused
+  );
   return new Response(svg, {
     headers: { "Content-Type": "image/svg+xml", "Cache-Control": "no-store" },
   });

@@ -12,6 +12,26 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Hide scrollbars everywhere while keeping scrolling itself fully working:
+   the element still scrolls by wheel, touch, and keyboard - only the visual
+   bar is gone. `scrollbar-width` covers Firefox, `-ms-overflow-style` covers
+   old Edge/IE, and the `::-webkit-scrollbar` rule covers Safari and Chrome
+   (including the older iOS Safari this build deliberately supports). */
+html,
+body,
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

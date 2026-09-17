@@ -1,5 +1,3 @@
-import { dayWord } from "@/lib/format";
-
 function escapeXml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -11,25 +9,28 @@ function escapeXml(s: string): string {
 
 export interface BadgeData {
   name: string;
+  /** Big number. */
   days: number;
-  tierName: string;
-  tierColor: string;
+  /** Small caps under the number, e.g. "DAYS", "OF 3 DAYS", "COMPLETE". */
+  caption: string;
+  /** Tier name / challenge label; empty string renders no pill line. */
+  pill: string;
+  color: string;
   line: string;
 }
 
 const PAUSED_COLOR = "#8A8578";
-const PAUSED_LINE = "No rush. Start again when you're ready.";
 
 // Centered composition: name, huge number, tier, and motivating line
 // stacked on the vertical center line. Read-only image, nothing clickable
 // baked into it.
 export function renderBadgeSvg(d: BadgeData, paused = false): string {
   const name = escapeXml(d.name);
-  const color = paused ? PAUSED_COLOR : d.tierColor;
+  const color = paused ? PAUSED_COLOR : d.color;
   const countText = paused ? "\u2014" : String(d.days);
-  const captionText = paused ? "PAUSED" : dayWord(d.days).toUpperCase();
-  const tierText = escapeXml(paused ? "" : d.tierName.toUpperCase());
-  const line = escapeXml(paused ? PAUSED_LINE : d.line);
+  const captionText = escapeXml(d.caption.toUpperCase());
+  const tierText = escapeXml(paused ? "" : d.pill.toUpperCase());
+  const line = escapeXml(d.line);
   const cx = 240;
 
   return `<svg width="480" height="300" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">

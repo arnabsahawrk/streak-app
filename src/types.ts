@@ -10,6 +10,9 @@ export interface Discipline {
   created_at: string;
   public_token: string;
   archive_reason: string | null;
+  /** null = open-ended tier ladder; N = fixed N-day challenge. Optional so
+   *  rows from a database that predates the column still satisfy the type. */
+  goal_days?: number | null;
 }
 
 export interface ResetEntry {

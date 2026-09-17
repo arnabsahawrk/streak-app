@@ -22,9 +22,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Why is required" }, { status: 400 });
   }
 
+  // null/absent means the open-ended ladder. Anything else has to be a
+  // whole number of days in range - reject junk rather than coercing it,
+  // so a bad value can't quietly become a challenge nobody can finish.
+  let goalDays: number | null = null;
+  if (body?.goal_days !== null && body?.goal_days !== undefined) {
+    const n = Number(body.goal_days);
+    if (!Number.isInteger(n) || n < 1 || n > 365) {
+      return NextResponse.json(
+        { error: "Challenge length must be a whole number between 1 and 365 days" },
+        { status: 400 }
+      );
+    }
+    goalDays = n;
+  }
+
   const [row] = await sql`
-    insert into disciplines (name, why_note)
-    values (${name}, ${whyNote})
+    insert into disciplines (name, why_note, goal_days)
+    values (${name}, ${whyNote}, ${goalDays})
     returning *
   `;
   return NextResponse.json(row, { status: 201 });

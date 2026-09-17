@@ -28,14 +28,14 @@ export default function ArchiveConfirmDialog({
         </p>
 
         <label className="block text-xs text-paper-dim mb-1.5">
-          Why are you archiving it?
+          Closing note
         </label>
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           rows={2}
           required
-          placeholder="e.g. Mastered it, no longer need to track this"
+          placeholder="e.g. Finished the challenge — three days, done"
           className="w-full bg-ash border border-ember-line rounded-lg px-3 py-2.5 mb-4 text-sm resize-none focus:outline-none focus:border-flame"
         />
 

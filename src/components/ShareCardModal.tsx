@@ -22,7 +22,7 @@ export default function ShareCardModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-0 sm:p-6">
-      <div className="w-full sm:max-w-sm bg-ash-raised border border-ember-line rounded-t-2xl sm:rounded-2xl p-6 max-h-[85vh] overflow-y-auto">
+      <div className="w-full sm:max-w-sm bg-ash-raised border border-ember-line rounded-t-2xl sm:rounded-2xl p-6 max-h-[85vh] overflow-y-auto no-scrollbar">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Share card</h2>
           <button onClick={onClose} className="text-paper-dim text-sm">
